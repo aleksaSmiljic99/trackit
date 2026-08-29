@@ -14,15 +14,17 @@ export default function AppShell({
     <button
       type="button"
       onClick={() => onNavigate(id)}
-      aria-current={view === id ? 'page' : undefined}
+      aria-current={view === id ? "page" : undefined}
       className={
-        'text-[13px] uppercase tracking-[0.12em] min-h-[44px] flex items-center ' +
-        (view === id ? 'text-accent-700' : 'text-neutral-600 hover:text-accent-700')
+        "text-[13px] uppercase tracking-[0.12em] min-h-[44px] flex items-center " +
+        (view === id
+          ? "text-accent-700"
+          : "text-neutral-600 hover:text-accent-700")
       }
     >
       {label}
     </button>
-  )
+  );
 
   return (
     <div className="min-h-full bg-bg">
@@ -30,7 +32,7 @@ export default function AppShell({
         <div className="mx-auto max-w-[860px] px-5 sm:px-8 flex items-center gap-[14px] sm:gap-[20px] h-[56px]">
           <button
             type="button"
-            onClick={() => onNavigate('today')}
+            onClick={() => onNavigate("today")}
             className="text-[13px] font-semibold uppercase tracking-[0.2em] shrink-0"
           >
             TrackIt
@@ -38,9 +40,9 @@ export default function AppShell({
 
           {showNav ? (
             <nav className="flex items-center gap-[14px] sm:gap-[18px] mr-auto overflow-x-auto">
-              {navItem('today', 'Today')}
-              {navItem('history', 'History')}
-              {navItem('routines', 'Days')}
+              {navItem("today", "Today")}
+              {navItem("history", "History")}
+              {navItem("routines", "Split")}
             </nav>
           ) : (
             <div className="mr-auto" />
@@ -51,7 +53,7 @@ export default function AppShell({
             onClick={onToggleUnit}
             className="text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
           >
-            {unit === 'kg' ? 'kg' : 'lb'}
+            {unit === "kg" ? "kg" : "lb"}
           </button>
 
           {onSignOut ? (
@@ -70,5 +72,5 @@ export default function AppShell({
         {children}
       </main>
     </div>
-  )
+  );
 }

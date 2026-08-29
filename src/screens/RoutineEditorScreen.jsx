@@ -130,11 +130,11 @@ export default function RoutineEditorScreen({
       ) : null}
 
       <div className="flex flex-col gap-[12px]">
-        <div className="grid grid-cols-[1fr_72px_72px_96px_32px] gap-[10px] items-center text-[12px] uppercase tracking-[0.14em] text-neutral-600">
-          <div>Exercise</div>
+        <div className="grid grid-cols-[72px_72px_96px_32px] sm:grid-cols-[1fr_72px_72px_96px_32px] gap-[10px] items-center text-[12px] uppercase tracking-[0.14em] text-neutral-600">
+          <div className="hidden sm:block">Exercise</div>
           <div className="text-center">Sets</div>
           <div className="text-center">Reps</div>
-          <div className="flex justify-center">
+          <div className="flex justify-start">
             {/* Weights are entered in whichever unit is active; the lb/kg
                 switch here (and the one in the top bar) flips it and converts
                 the values already typed. Storage is always pounds. */}
@@ -153,10 +153,10 @@ export default function RoutineEditorScreen({
         {rows.map((r, i) => (
           <div
             key={i}
-            className="grid grid-cols-[1fr_72px_72px_96px_32px] gap-[10px] items-center"
+            className="grid grid-cols-[72px_72px_96px_32px] sm:grid-cols-[1fr_72px_72px_96px_32px] gap-[10px] items-center"
           >
             <input
-              className="input"
+              className="input col-span-4 sm:col-span-1"
               placeholder="Bench Press"
               value={r.name}
               onChange={(e) => patch(i, 'name', e.target.value)}

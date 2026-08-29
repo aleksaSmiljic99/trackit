@@ -70,6 +70,18 @@ body {
   border-radius: var(--radius-md);
 }
 
+/* Strip the native number spinners app-wide. */
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .input::placeholder {
   color: color-mix(in srgb, var(--color-text) 60%, transparent);
   opacity: 1;

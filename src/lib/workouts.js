@@ -1,0 +1,171 @@
+import { supabase } from './supabase.js'
+import { shortWeekday } from './format.js'
+
+// Build the working plan for a routine: start from the routine's exercises,
+// then, for each exercise, if the user has logged this routine before, carry
+// the last session's weight/reps forward (progressive overload — the lifter
+// nudges the weight up from the "Adjust next set" stepper when ready).
+export async function loadPlan(userId, routine) {
+  const base = routine.exercises.map((e) => ({
+    name: e.name,
+    sets: e.targetSets,
+    reps: e.targetReps,
+    weight: e.startWeightLb,
+    last: null,
+  }))
+
+  const { data: sessions, error } = await supabase
+    .from('sessions')
+    .select('id, performed_on')
+    .eq('user_id', userId)
+    .eq('routine_id', routine.id)
+    .order('performed_on', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(1)
+  if (error) throw error
+
+  const last = sessions?.[0]
+  if (!last) return { plan: base, lastDate: null }
+
+  const { data: sets, error: setsError } = await supabase
+    .from('session_sets')
+    .select('lift_name, set_index, weight, reps, done')
+    .eq('session_id', last.id)
+  if (setsError) throw setsError
+
+  const byName = new Map()
+  for (const s of sets ?? []) {
+    if (!byName.has(s.lift_name)) byName.set(s.lift_name, [])
+    byName.get(s.lift_name).push(s)
+  }
+
+  const plan = base.map((row) => {
+    const rows = byName.get(row.name)
+    if (!rows?.length) return row
+    const logged = rows.filter((r) => r.done)
+    const ref = (logged.length ? logged : rows).sort(
+      (a, b) => b.set_index - a.set_index,
+    )[0]
+    return {
+      ...row,
+      weight: Number(ref.weight),
+      reps: ref.reps,
+      last: `${Number(ref.weight)} × ${ref.reps}`,
+    }
+  })
+
+  return { plan, lastDate: last.performed_on }
+}
+
+export async function loadRecent(userId, limit = 4) {
+  const { data, error } = await supabase
+    .from('sessions')
+    .select('id, name, performed_on, total_volume_lb')
+    .eq('user_id', userId)
+    .order('performed_on', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+
+  return (data ?? []).map((s) => ({
+    when: shortWeekday(new Date(s.performed_on)),
+    name: s.name,
+    volumeLb: Number(s.total_volume_lb) || 0,
+  }))
+}
+
+// Full history: every past session with its sets grouped by lift, newest first.
+export async function loadLogs(userId, limit = 100) {
+  const { data, error } = await supabase
+    .from('sessions')
+    .select(
+      'id, name, performed_on, elapsed_seconds, total_volume_lb, set_count, ' +
+        'session_sets (lift_index, lift_name, set_index, weight, reps, done)',
+    )
+    .eq('user_id', userId)
+    .order('performed_on', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+
+  return (data ?? []).map((s) => {
+    const byIndex = new Map()
+    for (const set of s.session_sets ?? []) {
+      if (!byIndex.has(set.lift_index)) {
+        byIndex.set(set.lift_index, { name: set.lift_name, sets: [] })
+      }
+      byIndex.get(set.lift_index).sets.push({
+        setIndex: set.set_index,
+        weight: Number(set.weight),
+        reps: set.reps,
+        done: set.done,
+      })
+    }
+
+    const lifts = [...byIndex.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([, lift]) => ({
+        name: lift.name,
+        sets: lift.sets
+          .sort((a, b) => a.setIndex - b.setIndex)
+          .filter((x) => x.done),
+        skipped: lift.sets.every((x) => !x.done),
+      }))
+
+    const loggedSets = (s.session_sets ?? []).filter((x) => x.done)
+    return {
+      id: s.id,
+      name: s.name,
+      performedOn: s.performed_on,
+      elapsedSeconds: s.elapsed_seconds ?? 0,
+      setCount: s.set_count ?? loggedSets.length,
+      volumeLb:
+        Number(s.total_volume_lb) ||
+        loggedSets.reduce((n, x) => n + Number(x.weight) * x.reps, 0),
+      lifts,
+    }
+  })
+}
+
+// Persist a finished session and its sets. Weights are stored in pounds.
+export async function saveSession({ userId, routineId, name, plan, log, elapsed }) {
+  const loggedSets = log.flat().filter((s) => s.done)
+  const totalVolume = loggedSets.reduce((n, s) => n + s.weight * s.reps, 0)
+
+  const { data: session, error } = await supabase
+    .from('sessions')
+    .insert({
+      user_id: userId,
+      routine_id: routineId,
+      name,
+      performed_on: new Date().toISOString().slice(0, 10),
+      elapsed_seconds: elapsed,
+      total_volume_lb: totalVolume,
+      set_count: loggedSets.length,
+    })
+    .select('id')
+    .single()
+  if (error) throw error
+
+  const rows = []
+  log.forEach((liftSets, liftIndex) => {
+    liftSets.forEach((s, setIndex) => {
+      rows.push({
+        session_id: session.id,
+        user_id: userId,
+        lift_index: liftIndex,
+        lift_name: plan[liftIndex].name,
+        set_index: setIndex,
+        weight: s.weight,
+        reps: s.reps,
+        target_reps: plan[liftIndex].reps,
+        done: s.done,
+      })
+    })
+  })
+
+  const { error: setsError } = await supabase.from('session_sets').insert(rows)
+  if (setsError) throw setsError
+
+  return session.id
+}

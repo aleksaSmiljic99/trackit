@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/broadsheet-3f664a34-f09a-4b5f-b1fe-43abf5beac10/styles.css">
+<script src="_ds/broadsheet-3f664a34-f09a-4b5f-b1fe-43abf5beac10/_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: var(--color-bg); }
+  a { color: var(--color-accent-700); text-decoration: none; }
+  a:hover { color: var(--color-accent-600); }
+  @keyframes tk-rest { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+<div style="min-height: 100vh; background: var(--color-bg); font-family: var(--font-body); color: var(--color-text); display: flex; flex-direction: column; align-items: center; gap: 30px; padding: 40px 20px 60px; box-sizing: border-box;">
+
+  <div style="display: flex; flex-direction: column; gap: 5px; align-items: center; text-align: center; max-width: 520px;">
+    <div style="font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-neutral-600);">TrackIt &middot; iPhone &middot; prototype</div>
+    <div style="font-size: 15px; line-height: 1.5; color: var(--color-neutral-700); text-wrap: pretty;">Tap <em>Begin workout</em>, then tap a set to log it at last session&rsquo;s numbers.</div>
+  </div>
+
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+    <div style="min-height: 874px; background: var(--color-bg); padding: 62px 0 44px; box-sizing: border-box; display: flex; flex-direction: column;">
+
+      <sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; gap: 30px; padding: 0 24px;">
+
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 15px;">
+            <div style="font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600;">TrackIt</div>
+            <div onClick="{{ toggleUnit }}" style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent-700); cursor: pointer; padding: 12px 0; min-height: 44px; display: flex; align-items: center;" style-hover="color: var(--color-accent-600);">{{ unitLabel }}</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-neutral-600);">{{ dateline }}</div>
+            <div style="font-size: 46px; line-height: 1.02; font-weight: 600; letter-spacing: -0.01em;">{{ workoutName }}</div>
+            <div style="font-size: 17px; color: var(--color-neutral-700);">{{ workoutSub }}</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <sc-for list="{{ plan }}" as="row" hint-placeholder-count="4">
+              <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: baseline; padding: 14px 0; min-height: 44px; box-sizing: border-box;">
+                <div style="display: flex; flex-direction: column; gap: 3px;">
+                  <div style="font-size: 21px; font-weight: 600; line-height: 1.2;">{{ row.name }}</div>
+                  <div style="font-size: 14px; color: var(--color-neutral-600);">last time {{ row.last }}</div>
+                </div>
+                <div style="font-size: 19px; color: var(--color-neutral-800); white-space: nowrap;">{{ row.target }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div onClick="{{ start }}" style="background: var(--color-accent); color: #fff; font-family: var(--font-body); font-size: 20px; font-weight: 600; letter-spacing: 0.02em; border-radius: var(--radius-md); min-height: 56px; display: flex; align-items: center; justify-content: center; cursor: pointer;" style-hover="background: var(--color-accent-600);" style-active="background: var(--color-accent-700);">Begin workout</div>
+
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-neutral-600);">Recent days</div>
+            <sc-for list="{{ recent }}" as="day" hint-placeholder-count="3">
+              <div style="display: grid; grid-template-columns: 62px 1fr auto; gap: 15px; align-items: baseline;">
+                <div style="font-size: 14px; color: var(--color-neutral-600);">{{ day.when }}</div>
+                <div style="font-size: 17px; font-weight: 600;">{{ day.name }}</div>
+                <div style="font-size: 15px; color: var(--color-neutral-700); white-space: nowrap;">{{ day.volume }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isWork }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 24px; padding: 0 24px; flex: 1;">
+
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+            <div style="font-size: 15px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-neutral-700); font-variant-numeric: tabular-nums;">{{ elapsedText }} elapsed</div>
+            <div onClick="{{ finish }}" style="font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent-700); cursor: pointer; min-height: 44px; display: flex; align-items: center;" style-hover="color: var(--color-accent-600);">Finish</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-neutral-600);">{{ exPosition }}</div>
+            <div style="font-size: 38px; line-height: 1.05; font-weight: 600;">{{ exName }}</div>
+            <div style="font-size: 16px; color: var(--color-neutral-700);">{{ exProgress }}</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column;">
+            <div style="display: grid; grid-template-columns: 34px 1fr 1fr 44px; gap: 10px; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-neutral-600); padding-bottom: 8px;">
+              <div>Set</div>
+              <div>Weight</div>
+              <div>Reps</div>
+              <div></div>
+            </div>
+            <sc-for list="{{ sets }}" as="s" hint-placeholder-count="4">
+              <div onClick="{{ s.tap }}" style="display: grid; grid-template-columns: 34px 1fr 1fr 44px; gap: 10px; align-items: center; min-height: 60px; cursor: pointer; border-top: 1px solid var(--color-divider); font-variant-numeric: tabular-nums;" style-hover="background: var(--color-accent-100);">
+                <div style="font-size: 17px; color: var(--color-neutral-600);">{{ s.n }}</div>
+                <sc-if value="{{ s.done }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size: 23px; font-weight: 600;">{{ s.weight }}</div>
+                  <div style="font-size: 23px; font-weight: 600;">{{ s.reps }}</div>
+                  <div style="display: flex; align-items: center; justify-content: flex-end; color: var(--color-accent-700); font-size: 24px;">&#10003;</div>
+                </sc-if>
+                <sc-if value="{{ s.pending }}" hint-placeholder-val="{{ true }}">
+                  <div style="font-size: 23px; color: var(--color-neutral-500);">{{ s.weight }}</div>
+                  <div style="font-size: 23px; color: var(--color-neutral-500);">{{ s.reps }}</div>
+                  <div style="display: flex; align-items: center; justify-content: flex-end; color: var(--color-neutral-400); font-size: 22px;">&#9633;</div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ hasPending }}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-neutral-600);">Adjust next set</div>
+              <div style="display: flex; gap: 30px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div onClick="{{ weightDown }}" style="width: 44px; height: 44px; border: 1px solid var(--color-neutral-400); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer;" style-hover="border-color: var(--color-accent); color: var(--color-accent-700);">&minus;</div>
+                  <div style="font-size: 20px; min-width: 76px; text-align: center; font-variant-numeric: tabular-nums;">{{ nextWeight }}</div>
+                  <div onClick="{{ weightUp }}" style="width: 44px; height: 44px; border: 1px solid var(--color-neutral-400); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer;" style-hover="border-color: var(--color-accent); color: var(--color-accent-700);">+</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div onClick="{{ repsDown }}" style="width: 44px; height: 44px; border: 1px solid var(--color-neutral-400); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer;" style-hover="border-color: var(--color-accent); color: var(--color-accent-700);">&minus;</div>
+                  <div style="font-size: 20px; min-width: 54px; text-align: center; font-variant-numeric: tabular-nums;">{{ nextReps }}</div>
+                  <div onClick="{{ repsUp }}" style="width: 44px; height: 44px; border: 1px solid var(--color-neutral-400); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer;" style-hover="border-color: var(--color-accent); color: var(--color-accent-700);">+</div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ restActive }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; animation: tk-rest 220ms ease-out;">
+              <div style="font-size: 22px; font-weight: 600; color: var(--color-accent-2-700); font-variant-numeric: tabular-nums;">Rest {{ restText }}</div>
+              <div onClick="{{ skipRest }}" style="font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent-700); cursor: pointer; min-height: 44px; display: flex; align-items: center;" style-hover="color: var(--color-accent-600);">Skip</div>
+            </div>
+          </sc-if>
+
+          <div style="margin-top: auto; display: flex; flex-direction: column; gap: 12px; padding-top: 20px;">
+            <div style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-neutral-600);">Today&rsquo;s lifts</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+              <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
+                <sc-if value="{{ c.active }}" hint-placeholder-val="{{ false }}">
+                  <div onClick="{{ c.tap }}" style="padding: 10px 14px; min-height: 44px; box-sizing: border-box; display: flex; align-items: center; border-radius: var(--radius-md); background: var(--color-accent); color: #fff; font-size: 15px; cursor: pointer;">{{ c.name }}</div>
+                </sc-if>
+                <sc-if value="{{ c.idle }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ c.tap }}" style="padding: 10px 14px; min-height: 44px; box-sizing: border-box; display: flex; align-items: center; border-radius: var(--radius-md); border: 1px solid var(--color-neutral-400); color: var(--color-neutral-800); font-size: 15px; cursor: pointer;" style-hover="border-color: var(--color-accent); color: var(--color-accent-700);">{{ c.name }} {{ c.count }}</div>
+                </sc-if>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 30px; padding: 0 24px; flex: 1;">
+          <div style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-neutral-600);">{{ dateline }} &middot; logged</div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 46px; line-height: 1.02; font-weight: 600;">{{ workoutName }}</div>
+            <div style="font-size: 18px; color: var(--color-neutral-700);">{{ doneSummary }}</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <sc-for list="{{ doneRows }}" as="r" hint-placeholder-count="4">
+              <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: baseline; padding: 12px 0; border-top: 1px solid var(--color-divider);">
+                <div style="font-size: 19px; font-weight: 600;">{{ r.name }}</div>
+                <div style="font-size: 17px; color: var(--color-neutral-700); font-variant-numeric: tabular-nums;">{{ r.detail }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div onClick="{{ reset }}" style="background: var(--color-accent); color: #fff; font-size: 20px; font-weight: 600; border-radius: var(--radius-md); min-height: 56px; display: flex; align-items: center; justify-content: center; cursor: pointer;" style-hover="background: var(--color-accent-600);" style-active="background: var(--color-accent-700);">Back to today</div>
+        </div>
+      </sc-if>
+
+    </div>
+  </x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:520,&quot;height&quot;:1050},&quot;unit&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;lb&quot;,&quot;kg&quot;],&quot;default&quot;:&quot;lb&quot;,&quot;tsType&quot;:&quot;'lb' | 'kg'&quot;},&quot;showRestTimer&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;restSeconds&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:90,&quot;min&quot;:30,&quot;max&quot;:240,&quot;step&quot;:15,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const plan = [
+      { name: 'Bench Press', sets: 4, reps: 5, weight: 185, last: '180 × 5' },
+      { name: 'Overhead Press', sets: 3, reps: 8, weight: 105, last: '105 × 8' },
+      { name: 'Incline DB Press', sets: 3, reps: 10, weight: 60, last: '55 × 10' },
+      { name: 'Cable Fly', sets: 3, reps: 12, weight: 35, last: '35 × 12' },
+    ];
+    this.state = {
+      screen: 'today', unit: props.unit || 'lb', exIdx: 0,
+      elapsed: 0, rest: 0,
+      log: plan.map(e => Array.from({ length: e.sets }, () => ({ done: false, weight: e.weight, reps: e.reps }))),
+    };
+    this.plan = plan;
+  }
+
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      this.setState(s => {
+        if (s.screen !== 'work') return null;
+        return { elapsed: s.elapsed + 1, rest: s.rest > 0 ? s.rest - 1 : 0 };
+      });
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+
+  w(lb) {
+    const kg = this.props.unit ? this.props.unit === 'kg' : false;
+    if (this.state.unit === 'kg' || kg) return Math.round(lb * 0.4536 * 2) / 2 + ' kg';
+    return lb + ' lb';
+  }
+  clock(t) {
+    const m = Math.floor(t / 60), s = t % 60;
+    return m + ':' + String(s).padStart(2, '0');
+  }
+  nextIdx() {
+    const rows = this.state.log[this.state.exIdx];
+    return rows.findIndex(r => !r.done);
+  }
+  bump(field, delta) {
+    const i = this.nextIdx();
+    if (i < 0) return;
+    this.setState(s => {
+      const log = s.log.map(a => a.map(r => ({ ...r })));
+      const row = log[s.exIdx][i];
+      row[field] = Math.max(field === 'reps' ? 1 : 0, row[field] + delta);
+      return { log };
+    });
+  }
+
+  renderVals() {
+    const st = this.state;
+    const rest = this.props.restSeconds ?? 90;
+    const doneCount = a => a.filter(r => r.done).length;
+    const cur = this.plan[st.exIdx];
+    const rows = st.log[st.exIdx];
+    const nextI = rows.findIndex(r => !r.done);
+    const next = nextI >= 0 ? rows[nextI] : rows[rows.length - 1];
+    const allSets = st.log.flat().filter(r => r.done);
+    const volume = allSets.reduce((n, r) => n + r.weight * r.reps, 0);
+
+    return {
+      isToday: st.screen === 'today', isWork: st.screen === 'work', isDone: st.screen === 'done',
+      dateline: 'Saturday 29 August',
+      workoutName: 'Push A',
+      workoutSub: 'Week 6, day 12 · last done 5 days ago',
+      unitLabel: st.unit === 'kg' ? 'kg' : 'lb',
+      toggleUnit: () => this.setState(s => ({ unit: s.unit === 'kg' ? 'lb' : 'kg' })),
+      plan: this.plan.map(e => ({
+        name: e.name,
+        target: e.sets + ' × ' + e.reps + '  ·  ' + this.w(e.weight),
+        last: e.last,
+      })),
+      recent: [
+        { when: 'Thu', name: 'Pull B', volume: this.w(14300) },
+        { when: 'Tue', name: 'Legs A', volume: this.w(21750) },
+        { when: 'Mon', name: 'Push A', volume: this.w(12400) },
+      ],
+      start: () => this.setState({ screen: 'work' }),
+      finish: () => this.setState({ screen: 'done' }),
+      reset: () => this.setState(s => ({
+        screen: 'today', exIdx: 0, elapsed: 0, rest: 0,
+        log: this.plan.map(e => Array.from({ length: e.sets }, () => ({ done: false, weight: e.weight, reps: e.reps }))),
+      })),
+      elapsedText: this.clock(st.elapsed),
+      exName: cur.name,
+      exPosition: 'Lift ' + (st.exIdx + 1) + ' of ' + this.plan.length,
+      exProgress: doneCount(rows) + ' of ' + rows.length + ' sets logged · target ' + cur.reps + ' reps',
+      sets: rows.map((r, i) => ({
+        n: i + 1, done: r.done, pending: !r.done,
+        weight: this.w(r.weight), reps: '× ' + r.reps,
+        tap: () => this.setState(s => {
+          const log = s.log.map(a => a.map(x => ({ ...x })));
+          const row = log[s.exIdx][i];
+          row.done = !row.done;
+          return { log, rest: row.done && (this.props.showRestTimer ?? true) ? rest : 0 };
+        }),
+      })),
+      hasPending: nextI >= 0,
+      nextWeight: this.w(next.weight),
+      nextReps: next.reps + ' reps',
+      weightUp: () => this.bump('weight', 5),
+      weightDown: () => this.bump('weight', -5),
+      repsUp: () => this.bump('reps', 1),
+      repsDown: () => this.bump('reps', -1),
+      restActive: st.rest > 0,
+      restText: this.clock(st.rest),
+      skipRest: () => this.setState({ rest: 0 }),
+      chips: this.plan.map((e, i) => ({
+        name: e.name, active: i === st.exIdx, idle: i !== st.exIdx,
+        count: doneCount(st.log[i]) + '/' + e.sets,
+        tap: () => this.setState({ exIdx: i, rest: 0 }),
+      })),
+      doneSummary: allSets.length + ' sets · ' + this.w(volume) + ' total volume · ' + this.clock(st.elapsed),
+      doneRows: this.plan.map((e, i) => {
+        const d = st.log[i].filter(r => r.done);
+        return {
+          name: e.name,
+          detail: d.length ? d.length + ' × ' + d[d.length - 1].reps + ' @ ' + this.w(d[d.length - 1].weight) : 'not logged',
+        };
+      }),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 import { supabase } from './supabase.js'
 import { shortWeekday } from './format.js'
+import { setVolume } from './stats.js'
 
 // Build the working plan for a routine: start from the routine's exercises,
 // then, for each exercise, if the user has logged this routine before, carry
@@ -8,6 +9,9 @@ import { shortWeekday } from './format.js'
 export async function loadPlan(userId, routine) {
   const base = routine.exercises.map((e) => ({
     name: e.name,
+    exerciseId: e.exerciseId ?? null,
+    loadMode: e.loadMode ?? 'external',
+    supersetGroup: e.supersetGroup ?? null,
     sets: e.targetSets,
     reps: e.targetReps,
     weight: e.startWeightLb,
@@ -29,18 +33,24 @@ export async function loadPlan(userId, routine) {
 
   const { data: sets, error: setsError } = await supabase
     .from('session_sets')
-    .select('lift_name, set_index, weight, reps, done')
+    .select('lift_name, exercise_id, set_index, weight, reps, done')
     .eq('session_id', last.id)
   if (setsError) throw setsError
 
+  // Match last session's sets to plan rows by library id first, then by name.
+  const byId = new Map()
   const byName = new Map()
   for (const s of sets ?? []) {
+    if (s.exercise_id) {
+      if (!byId.has(s.exercise_id)) byId.set(s.exercise_id, [])
+      byId.get(s.exercise_id).push(s)
+    }
     if (!byName.has(s.lift_name)) byName.set(s.lift_name, [])
     byName.get(s.lift_name).push(s)
   }
 
   const plan = base.map((row) => {
-    const rows = byName.get(row.name)
+    const rows = (row.exerciseId && byId.get(row.exerciseId)) || byName.get(row.name)
     if (!rows?.length) return row
     const logged = rows.filter((r) => r.done)
     const ref = (logged.length ? logged : rows).sort(
@@ -80,7 +90,8 @@ export async function loadLogs(userId, limit = 100) {
     .from('sessions')
     .select(
       'id, name, performed_on, elapsed_seconds, total_volume_lb, set_count, ' +
-        'session_sets (lift_index, lift_name, set_index, weight, reps, done)',
+        'session_sets (lift_index, lift_name, exercise_id, load_mode, superset_group, ' +
+        'drop_group, set_index, weight, reps, done)',
     )
     .eq('user_id', userId)
     .order('performed_on', { ascending: false })
@@ -92,13 +103,20 @@ export async function loadLogs(userId, limit = 100) {
     const byIndex = new Map()
     for (const set of s.session_sets ?? []) {
       if (!byIndex.has(set.lift_index)) {
-        byIndex.set(set.lift_index, { name: set.lift_name, sets: [] })
+        byIndex.set(set.lift_index, {
+          name: set.lift_name,
+          exerciseId: set.exercise_id ?? null,
+          loadMode: set.load_mode ?? 'external',
+          supersetGroup: set.superset_group ?? null,
+          sets: [],
+        })
       }
       byIndex.get(set.lift_index).sets.push({
         setIndex: set.set_index,
         weight: Number(set.weight),
         reps: set.reps,
         done: set.done,
+        dropGroup: set.drop_group ?? null,
       })
     }
 
@@ -106,6 +124,9 @@ export async function loadLogs(userId, limit = 100) {
       .sort((a, b) => a[0] - b[0])
       .map(([, lift]) => ({
         name: lift.name,
+        exerciseId: lift.exerciseId,
+        loadMode: lift.loadMode,
+        supersetGroup: lift.supersetGroup,
         sets: lift.sets
           .sort((a, b) => a.setIndex - b.setIndex)
           .filter((x) => x.done),
@@ -121,7 +142,7 @@ export async function loadLogs(userId, limit = 100) {
       setCount: s.set_count ?? loggedSets.length,
       volumeLb:
         Number(s.total_volume_lb) ||
-        loggedSets.reduce((n, x) => n + Number(x.weight) * x.reps, 0),
+        loggedSets.reduce((n, x) => n + setVolume(x.weight, x.reps, x.load_mode), 0),
       lifts,
     }
   })
@@ -129,8 +150,15 @@ export async function loadLogs(userId, limit = 100) {
 
 // Persist a finished session and its sets. Weights are stored in pounds.
 export async function saveSession({ userId, routineId, name, plan, log, elapsed }) {
+  const totalVolume = log.reduce(
+    (sum, liftSets, i) =>
+      sum +
+      liftSets
+        .filter((s) => s.done)
+        .reduce((n, s) => n + setVolume(s.weight, s.reps, plan[i]?.loadMode), 0),
+    0,
+  )
   const loggedSets = log.flat().filter((s) => s.done)
-  const totalVolume = loggedSets.reduce((n, s) => n + s.weight * s.reps, 0)
 
   const { data: session, error } = await supabase
     .from('sessions')
@@ -149,16 +177,21 @@ export async function saveSession({ userId, routineId, name, plan, log, elapsed 
 
   const rows = []
   log.forEach((liftSets, liftIndex) => {
+    const p = plan[liftIndex]
     liftSets.forEach((s, setIndex) => {
       rows.push({
         session_id: session.id,
         user_id: userId,
         lift_index: liftIndex,
-        lift_name: plan[liftIndex].name,
+        lift_name: p.name,
+        exercise_id: p.exerciseId ?? null,
+        load_mode: p.loadMode === 'bodyweight' ? 'bodyweight' : 'external',
+        superset_group: p.supersetGroup ?? null,
+        drop_group: s.dropGroup ?? null,
         set_index: setIndex,
         weight: s.weight,
         reps: s.reps,
-        target_reps: plan[liftIndex].reps,
+        target_reps: p.reps,
         done: s.done,
       })
     })
@@ -189,14 +222,19 @@ export async function updateSession(
 ) {
   const rows = []
   lifts.forEach((lift, liftIndex) => {
+    const loadMode = lift.loadMode === 'bodyweight' ? 'bodyweight' : 'external'
     lift.sets.forEach((s, setIndex) => {
       rows.push({
         session_id: sessionId,
         user_id: userId,
         lift_index: liftIndex,
         lift_name: lift.name.trim() || `Lift ${liftIndex + 1}`,
+        exercise_id: lift.exerciseId ?? null,
+        load_mode: loadMode,
+        superset_group: lift.supersetGroup ?? null,
+        drop_group: s.dropGroup ?? null,
         set_index: setIndex,
-        weight: Math.max(0, Number(s.weight) || 0),
+        weight: loadMode === 'bodyweight' ? Number(s.weight) || 0 : Math.max(0, Number(s.weight) || 0),
         reps: Math.max(0, Math.round(Number(s.reps) || 0)),
         done: s.done !== false,
       })
@@ -204,7 +242,7 @@ export async function updateSession(
   })
 
   const done = rows.filter((r) => r.done)
-  const totalVolume = done.reduce((n, r) => n + r.weight * r.reps, 0)
+  const totalVolume = done.reduce((n, r) => n + setVolume(r.weight, r.reps, r.load_mode), 0)
 
   const { error } = await supabase
     .from('sessions')

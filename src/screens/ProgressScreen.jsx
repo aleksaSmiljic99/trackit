@@ -1,21 +1,22 @@
 import { useMemo, useState } from 'react'
-import { logDate, toDisplayVolume, toDisplayWeight } from '../lib/format.js'
+import { loadLabel, logDate, toDisplayVolume, toDisplayWeight } from '../lib/format.js'
 import { exerciseProgress } from '../lib/stats.js'
 
-// Tiny inline line chart of estimated 1RM over time. No library — it's one path.
+// Tiny inline line chart. Plots estimated 1RM for weighted lifts, top-set reps
+// for bodyweight ones (see `score` in stats.js). No library — it's one path.
 function Spark({ points }) {
   const w = 300
   const h = 72
   const pad = 6
 
   const geom = useMemo(() => {
-    const vals = points.map((p) => p.e1rm)
+    const vals = points.map((p) => p.score)
     const min = Math.min(...vals)
     const max = Math.max(...vals)
     const range = max - min || 1
     return points.map((p, i) => {
       const x = pad + (i / (points.length - 1)) * (w - pad * 2)
-      const y = h - pad - ((p.e1rm - min) / range) * (h - pad * 2)
+      const y = h - pad - ((p.score - min) / range) * (h - pad * 2)
       return [x, y]
     })
   }, [points])
@@ -38,22 +39,42 @@ function Spark({ points }) {
 }
 
 function ExerciseCard({ ex, unit }) {
+  const bw = ex.loadMode === 'bodyweight'
   const latest = ex.points[ex.points.length - 1]
   const first = ex.points[0]
-  const deltaLb = latest.e1rm - first.e1rm
-  const trend =
-    ex.points.length < 2
-      ? null
-      : deltaLb > 0.5
-        ? `▲ ${toDisplayWeight(Math.round(deltaLb), unit)} since ${logDate(first.date)}`
-        : deltaLb < -0.5
-          ? `▼ ${toDisplayWeight(Math.round(-deltaLb), unit)} since ${logDate(first.date)}`
-          : `level since ${logDate(first.date)}`
+
+  let trend = null
+  if (ex.points.length >= 2) {
+    if (bw) {
+      const d = latest.reps - first.reps
+      trend =
+        d > 0
+          ? `▲ ${d} rep${d === 1 ? '' : 's'} since ${logDate(first.date)}`
+          : d < 0
+            ? `▼ ${-d} rep${d === -1 ? '' : 's'} since ${logDate(first.date)}`
+            : `level since ${logDate(first.date)}`
+    } else {
+      const d = latest.e1rm - first.e1rm
+      trend =
+        d > 0.5
+          ? `▲ ${toDisplayWeight(Math.round(d), unit)} since ${logDate(first.date)}`
+          : d < -0.5
+            ? `▼ ${toDisplayWeight(Math.round(-d), unit)} since ${logDate(first.date)}`
+            : `level since ${logDate(first.date)}`
+    }
+  }
 
   return (
     <div className="flex flex-col gap-[10px] py-[20px] border-t border-divider">
       <div className="flex items-baseline justify-between gap-[15px]">
-        <div className="text-[21px] font-semibold leading-[1.15]">{ex.name}</div>
+        <div className="text-[21px] font-semibold leading-[1.15]">
+          {ex.name}
+          {bw ? (
+            <span className="ml-[8px] text-[12px] uppercase tracking-[0.1em] text-neutral-600">
+              BW
+            </span>
+          ) : null}
+        </div>
         <div className="text-[14px] text-neutral-600 tabular-nums whitespace-nowrap">
           {ex.sessions} session{ex.sessions === 1 ? '' : 's'}
         </div>
@@ -67,21 +88,35 @@ function ExerciseCard({ ex, unit }) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-x-[15px] gap-y-[6px] text-[15px] tabular-nums">
-        <div className="text-neutral-600">Est. 1RM now</div>
-        <div className="text-right font-semibold">
-          {toDisplayWeight(Math.round(latest.e1rm), unit)}
+      {bw ? (
+        <div className="grid grid-cols-2 gap-x-[15px] gap-y-[6px] text-[15px] tabular-nums">
+          <div className="text-neutral-600">Top set now</div>
+          <div className="text-right font-semibold">
+            {loadLabel(latest.added, unit, 'bodyweight')} × {latest.reps}
+          </div>
+          <div className="text-neutral-600">Best set</div>
+          <div className="text-right">
+            {loadLabel(ex.prE1rm.added, unit, 'bodyweight')} × {ex.prE1rm.reps} ·{' '}
+            {logDate(ex.prE1rm.date)}
+          </div>
         </div>
-        <div className="text-neutral-600">Best est. 1RM</div>
-        <div className="text-right">
-          {toDisplayWeight(Math.round(ex.prE1rm.e1rm), unit)} · {logDate(ex.prE1rm.date)}
+      ) : (
+        <div className="grid grid-cols-2 gap-x-[15px] gap-y-[6px] text-[15px] tabular-nums">
+          <div className="text-neutral-600">Est. 1RM now</div>
+          <div className="text-right font-semibold">
+            {toDisplayWeight(Math.round(latest.e1rm), unit)}
+          </div>
+          <div className="text-neutral-600">Best est. 1RM</div>
+          <div className="text-right">
+            {toDisplayWeight(Math.round(ex.prE1rm.e1rm), unit)} · {logDate(ex.prE1rm.date)}
+          </div>
+          <div className="text-neutral-600">Heaviest set</div>
+          <div className="text-right">
+            {toDisplayWeight(ex.prWeight.topWeight, unit)} × {ex.prWeight.reps} ·{' '}
+            {logDate(ex.prWeight.date)}
+          </div>
         </div>
-        <div className="text-neutral-600">Heaviest set</div>
-        <div className="text-right">
-          {toDisplayWeight(ex.prWeight.topWeight, unit)} × {ex.prWeight.reps} ·{' '}
-          {logDate(ex.prWeight.date)}
-        </div>
-      </div>
+      )}
 
       {trend ? <div className="text-[14px] text-accent-700 tabular-nums">{trend}</div> : null}
     </div>
@@ -136,7 +171,7 @@ export default function ProgressScreen({ logs, loading, error, unit }) {
 
           <div className="flex flex-col">
             {filtered.map((ex) => (
-              <ExerciseCard key={ex.name} ex={ex} unit={unit} />
+              <ExerciseCard key={ex.key} ex={ex} unit={unit} />
             ))}
             <div className="border-t border-divider" />
           </div>

@@ -4,9 +4,14 @@ import { fromInputWeight, toInputWeight } from '../lib/format.js'
 function liftsFrom(session, unit) {
   return (session.lifts ?? []).map((lift) => ({
     name: lift.name,
+    // Carried through untouched — not editable here, but must survive a save.
+    exerciseId: lift.exerciseId ?? null,
+    loadMode: lift.loadMode ?? 'external',
+    supersetGroup: lift.supersetGroup ?? null,
     sets: (lift.sets ?? []).map((s) => ({
       weight: toInputWeight(s.weight, unit),
       reps: s.reps,
+      dropGroup: s.dropGroup ?? null,
     })),
   }))
 }
@@ -89,11 +94,15 @@ export default function SessionEditorScreen({
     const cleaned = lifts
       .map((lift) => ({
         name: lift.name.trim(),
+        exerciseId: lift.exerciseId ?? null,
+        loadMode: lift.loadMode ?? 'external',
+        supersetGroup: lift.supersetGroup ?? null,
         sets: lift.sets
           .map((s) => ({
             weight: fromInputWeight(s.weight, unit),
             reps: Math.max(0, Math.round(Number(s.reps) || 0)),
             done: true,
+            dropGroup: s.dropGroup ?? null,
           }))
           .filter((s) => s.reps > 0),
       }))

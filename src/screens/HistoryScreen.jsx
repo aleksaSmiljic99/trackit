@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { logDate, longClock, toDisplayVolume, toDisplayWeight } from '../lib/format.js'
+import { loadLabel, logDate, longClock, toDisplayVolume } from '../lib/format.js'
+
+const groupLetter = (n) => (n == null ? null : String.fromCharCode(65 + (n % 26)))
 
 function SessionBlock({ session, unit, open, onToggle, onEdit, onDelete }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -63,22 +65,39 @@ function SessionBlock({ session, unit, open, onToggle, onEdit, onDelete }) {
 
       {open ? (
         <div className="flex flex-col gap-[14px] mt-[16px]">
-          {session.lifts.map((lift, i) => (
-            <div key={i} className="flex flex-col gap-[6px]">
-              <div className="text-[17px] font-semibold">{lift.name}</div>
-              {lift.sets.length ? (
-                <div className="flex flex-wrap gap-x-[16px] gap-y-[4px] text-[16px] text-neutral-800 tabular-nums">
-                  {lift.sets.map((s, j) => (
-                    <span key={j}>
-                      {toDisplayWeight(s.weight, unit)} × {s.reps}
+          {session.lifts.map((lift, i) => {
+            const gl = groupLetter(lift.supersetGroup)
+            return (
+              <div key={i} className="flex flex-col gap-[6px]">
+                <div className="text-[17px] font-semibold">
+                  {gl ? (
+                    <span className="text-[13px] uppercase tracking-[0.1em] text-accent-700 mr-[6px]">
+                      {gl}
                     </span>
-                  ))}
+                  ) : null}
+                  {lift.name}
                 </div>
-              ) : (
-                <div className="text-[15px] text-neutral-600">not logged</div>
-              )}
-            </div>
-          ))}
+                {lift.sets.length ? (
+                  <div className="flex flex-wrap gap-x-[16px] gap-y-[4px] text-[16px] text-neutral-800 tabular-nums">
+                    {lift.sets.map((s, j) => {
+                      const drop =
+                        s.dropGroup != null &&
+                        j > 0 &&
+                        lift.sets[j - 1].dropGroup === s.dropGroup
+                      return (
+                        <span key={j}>
+                          {drop ? '↳ ' : ''}
+                          {loadLabel(s.weight, unit, lift.loadMode)} × {s.reps}
+                        </span>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-[15px] text-neutral-600">not logged</div>
+                )}
+              </div>
+            )
+          })}
         </div>
       ) : null}
     </div>

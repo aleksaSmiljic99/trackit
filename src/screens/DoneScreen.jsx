@@ -1,4 +1,5 @@
-import { dateline, longClock, toDisplayVolume, toDisplayWeight } from '../lib/format.js'
+import { dateline, loadLabel, longClock, toDisplayVolume, toDisplayWeight } from '../lib/format.js'
+import { setVolume } from '../lib/stats.js'
 
 function prLabel(hit, unit) {
   if (hit.kind === 'e1rm') {
@@ -7,12 +8,22 @@ function prLabel(hit, unit) {
       unit,
     )} × ${hit.reps})`
   }
+  if (hit.kind === 'bw') {
+    return `${loadLabel(hit.added, unit, 'bodyweight')} × ${hit.reps}`
+  }
   return `heaviest set ${toDisplayWeight(hit.value, unit)}`
 }
 
 export default function DoneScreen({ wk, prefs }) {
   const loggedSets = wk.log.flat().filter((s) => s.done)
-  const volume = loggedSets.reduce((n, s) => n + s.weight * s.reps, 0)
+  const volume = wk.log.reduce(
+    (sum, liftSets, i) =>
+      sum +
+      liftSets
+        .filter((s) => s.done)
+        .reduce((n, s) => n + setVolume(s.weight, s.reps, wk.plan[i]?.loadMode), 0),
+    0,
+  )
 
   const rows = wk.plan.map((e, i) => {
     const done = wk.log[i].filter((s) => s.done)
@@ -20,7 +31,7 @@ export default function DoneScreen({ wk, prefs }) {
     return {
       name: e.name,
       detail: ref
-        ? `${done.length} × ${ref.reps} @ ${toDisplayWeight(ref.weight, prefs.unit)}`
+        ? `${done.length} × ${ref.reps} @ ${loadLabel(ref.weight, prefs.unit, e.loadMode)}`
         : 'not logged',
     }
   })

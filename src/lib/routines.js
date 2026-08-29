@@ -6,7 +6,8 @@ export async function listRoutines(userId) {
     .from('routines')
     .select(
       'id, name, position, created_at, ' +
-        'routine_exercises (id, name, position, target_sets, target_reps, start_weight_lb)',
+        'routine_exercises (id, name, position, target_sets, target_reps, ' +
+        'start_weight_lb, exercise_id, load_mode, superset_group)',
     )
     .eq('user_id', userId)
     .order('position', { ascending: true })
@@ -24,6 +25,9 @@ export async function listRoutines(userId) {
       .map((e) => ({
         id: e.id,
         name: e.name,
+        exerciseId: e.exercise_id ?? null,
+        loadMode: e.load_mode ?? 'external',
+        supersetGroup: e.superset_group ?? null,
         targetSets: e.target_sets,
         targetReps: e.target_reps,
         startWeightLb: Number(e.start_weight_lb),
@@ -78,6 +82,9 @@ async function replaceExercises(userId, routineId, exercises) {
       routine_id: routineId,
       user_id: userId,
       name: e.name.trim(),
+      exercise_id: e.exerciseId ?? null,
+      load_mode: e.loadMode === 'bodyweight' ? 'bodyweight' : 'external',
+      superset_group: e.supersetGroup ?? null,
       position: i,
       target_sets: clampInt(e.targetSets, 1, 20, 3),
       target_reps: clampInt(e.targetReps, 1, 100, 8),

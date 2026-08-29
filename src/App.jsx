@@ -12,6 +12,7 @@ import SessionEditorScreen from './screens/SessionEditorScreen.jsx'
 import { useAuth } from './context/AuthContext.jsx'
 import { usePreferences } from './hooks/usePreferences.js'
 import { useRoutines } from './hooks/useRoutines.js'
+import { useExercises } from './hooks/useExercises.js'
 import { useHistory } from './hooks/useHistory.js'
 import { useLogs } from './hooks/useLogs.js'
 import { useWorkout } from './hooks/useWorkout.js'
@@ -45,6 +46,7 @@ function AuthedApp() {
   const { signOut } = useAuth()
   const { prefs, update, toggleUnit } = usePreferences()
   const routines = useRoutines()
+  const exercises = useExercises()
   const history = useHistory()
   const logs = useLogs()
   const wk = useWorkout({
@@ -80,7 +82,7 @@ function AuthedApp() {
   if (wk.screen === 'work') {
     return (
       <AppShell {...shellProps} showNav={false}>
-        <WorkScreen wk={wk} prefs={prefs} />
+        <WorkScreen wk={wk} prefs={prefs} library={exercises} />
       </AppShell>
     )
   }
@@ -99,6 +101,7 @@ function AuthedApp() {
         initial={editing === 'new' ? null : editing}
         unit={prefs.unit}
         onToggleUnit={toggleUnit}
+        library={exercises}
         onCancel={() => navigate('routines')}
         onSave={async (data) => {
           if (editing === 'new') await routines.create(data)

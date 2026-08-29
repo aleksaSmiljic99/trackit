@@ -2,6 +2,37 @@
 -- Auth accounts live in Supabase's built-in `auth.users`; sign-up from the app
 -- creates them. Everything below is per-user and protected by RLS.
 
+-- ── exercises (per-user library) ───────────────────────────────────────────
+-- Each account gets its own copy, seeded on first load (see src/lib/exercises.js).
+-- Routines and logged sets point here by id so the same lift lines up across
+-- sessions even when its free-text name drifts ("Bench Press" vs "bench").
+create table if not exists public.exercises (
+  id              uuid primary key default gen_random_uuid(),
+  user_id         uuid not null references auth.users (id) on delete cascade,
+  name            text not null,
+  aliases         text[] not null default '{}',
+  primary_muscle  text,
+  equipment       text,
+  load_mode       text not null default 'external',  -- 'external' | 'bodyweight'
+  is_archived     boolean not null default false,
+  created_at      timestamptz not null default now()
+);
+
+create index if not exists exercises_user_idx
+  on public.exercises (user_id, is_archived, name);
+
+-- ── exercise_substitutions (symmetric "swap this for that" links) ───────────
+-- Stored both directions so a lookup by either id is a single filter.
+create table if not exists public.exercise_substitutions (
+  user_id       uuid not null references auth.users (id) on delete cascade,
+  exercise_id   uuid not null references public.exercises (id) on delete cascade,
+  substitute_id uuid not null references public.exercises (id) on delete cascade,
+  primary key (exercise_id, substitute_id)
+);
+
+create index if not exists exercise_substitutions_user_idx
+  on public.exercise_substitutions (user_id, exercise_id);
+
 -- ── routines (a "workout day", e.g. "Push A") ───────────────────────────────
 create table if not exists public.routines (
   id          uuid primary key default gen_random_uuid(),
@@ -29,6 +60,14 @@ create table if not exists public.routine_exercises (
 
 create index if not exists routine_exercises_routine_idx
   on public.routine_exercises (routine_id, position);
+
+-- Library link + how the load is entered + superset grouping.
+-- exercises sharing a non-null superset_group in one routine are performed
+-- back-to-back (rest only after the group).
+alter table public.routine_exercises
+  add column if not exists exercise_id    uuid references public.exercises (id) on delete set null,
+  add column if not exists load_mode      text not null default 'external',
+  add column if not exists superset_group smallint;
 
 -- ── sessions (a finished workout) ──────────────────────────────────────────
 create table if not exists public.sessions (
@@ -70,11 +109,35 @@ create table if not exists public.session_sets (
 create index if not exists session_sets_session_idx
   on public.session_sets (session_id, lift_index, set_index);
 
+-- Library link, load style, and grouping.
+--   load_mode = 'bodyweight' → `weight` is the ADDED load: 0 shows as "BW",
+--     +25 as "BW +25", -25 (assisted) as "BW −25".
+--   superset_group → same value across lifts = performed back-to-back.
+--   drop_group → same value within one lift = a drop set sequence (no rest).
+alter table public.session_sets
+  add column if not exists exercise_id    uuid references public.exercises (id) on delete set null,
+  add column if not exists load_mode      text not null default 'external',
+  add column if not exists superset_group smallint,
+  add column if not exists drop_group     smallint;
+
+create index if not exists session_sets_exercise_idx
+  on public.session_sets (user_id, exercise_id);
+
 -- ── Row Level Security — every table is "you only touch your own rows" ─────
-alter table public.routines           enable row level security;
-alter table public.routine_exercises  enable row level security;
-alter table public.sessions           enable row level security;
-alter table public.session_sets       enable row level security;
+alter table public.exercises              enable row level security;
+alter table public.exercise_substitutions enable row level security;
+alter table public.routines               enable row level security;
+alter table public.routine_exercises      enable row level security;
+alter table public.sessions               enable row level security;
+alter table public.session_sets           enable row level security;
+
+drop policy if exists "own exercises" on public.exercises;
+create policy "own exercises" on public.exercises
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+drop policy if exists "own exercise_substitutions" on public.exercise_substitutions;
+create policy "own exercise_substitutions" on public.exercise_substitutions
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 drop policy if exists "own routines" on public.routines;
 create policy "own routines" on public.routines

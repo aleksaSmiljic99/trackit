@@ -27,6 +27,15 @@ export function toDisplayWeight(lb, unit) {
   return `${lb} lb`
 }
 
+// How a set's load reads. Bodyweight lifts store the ADDED load: 0 → "BW",
+// +25 → "BW +25 lb", −25 (assisted) → "BW −25 lb".
+export function loadLabel(lb, unit, loadMode) {
+  if (loadMode !== 'bodyweight') return toDisplayWeight(lb, unit)
+  const n = Number(lb) || 0
+  if (n === 0) return 'BW'
+  return `BW ${n > 0 ? '+' : '−'}${toDisplayWeight(Math.abs(n), unit)}`
+}
+
 export function toDisplayVolume(lb, unit) {
   const value =
     unit === 'kg' ? Math.round(lb * 0.4536 * 2) / 2 : Math.round(lb)

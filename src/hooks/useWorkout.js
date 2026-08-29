@@ -143,15 +143,37 @@ export function useWorkout({ prefs, logs = [], onSaved }) {
 
   const toggleSet = useCallback(
     (i) => {
+      let advanceTo = null
       setLog((prev) => {
         const next = prev.map((a) => a.map((s) => ({ ...s })))
         const row = next[exIdx][i]
         row.done = !row.done
-        setRest(row.done && prefs.showRestTimer ? prefs.restSeconds : 0)
+
+        // Superset: when a set is completed and a grouped partner still has work
+        // left, jump straight to it with no rest.
+        const group = plan[exIdx]?.supersetGroup
+        let supersetHop = false
+        if (row.done && group != null) {
+          const partner = plan.findIndex(
+            (p, j) =>
+              j !== exIdx && p.supersetGroup === group && next[j].some((s) => !s.done),
+          )
+          if (partner >= 0) {
+            supersetHop = true
+            advanceTo = partner
+          }
+        }
+
+        // No rest between the sets of a drop set either.
+        const isDrop = row.dropGroup != null
+        setRest(
+          row.done && !supersetHop && !isDrop && prefs.showRestTimer ? prefs.restSeconds : 0,
+        )
         return next
       })
+      if (advanceTo != null) setExIdx(advanceTo)
     },
-    [exIdx, prefs.showRestTimer, prefs.restSeconds],
+    [exIdx, plan, prefs.showRestTimer, prefs.restSeconds],
   )
 
   const bump = useCallback(
@@ -161,16 +183,70 @@ export function useWorkout({ prefs, logs = [], onSaved }) {
         if (i < 0) return prev
         const next = prev.map((a) => a.map((s) => ({ ...s })))
         const row = next[exIdx][i]
-        row[field] = Math.max(field === 'reps' ? 1 : 0, row[field] + delta)
+        // Bodyweight loads may go negative (assisted); everything else floors at 0.
+        const floor =
+          field === 'reps' ? 1 : plan[exIdx]?.loadMode === 'bodyweight' ? -500 : 0
+        row[field] = Math.max(floor, row[field] + delta)
         return next
       })
     },
-    [exIdx],
+    [exIdx, plan],
+  )
+
+  // Append a lighter set right after set `i`, tied to it as a drop set (no rest).
+  const addDrop = useCallback(
+    (i) => {
+      setLog((prev) => {
+        const next = prev.map((a) => a.map((s) => ({ ...s })))
+        const rows = next[exIdx]
+        const src = rows[i]
+        if (!src) return prev
+        let group = src.dropGroup
+        if (group == null) {
+          group = 1 + rows.reduce((m, s) => Math.max(m, s.dropGroup ?? 0), 0)
+          src.dropGroup = group
+        }
+        const bw = plan[exIdx]?.loadMode === 'bodyweight'
+        const weight = bw ? src.weight : Math.max(0, Math.round((src.weight * 0.8) / 5) * 5)
+        rows.splice(i + 1, 0, { done: false, weight, reps: src.reps, dropGroup: group })
+        return next
+      })
+      setRest(0)
+    },
+    [exIdx, plan],
   )
 
   const selectLift = useCallback((i) => {
     setExIdx(i)
     setRest(0)
+  }, [])
+
+  // Mid-workout exercise swap. Changes the plan row (name/library id/load mode)
+  // and clears any not-yet-logged sets' weight when the load style changes.
+  // The routine on disk is untouched.
+  const swapLift = useCallback((i, ex) => {
+    const toBw = (ex.loadMode ?? 'external') === 'bodyweight'
+    setPlan((prev) =>
+      prev.map((p, j) =>
+        j === i
+          ? {
+              ...p,
+              name: ex.name,
+              exerciseId: ex.id,
+              loadMode: ex.loadMode ?? 'external',
+              last: null,
+              weight: toBw && p.loadMode !== 'bodyweight' ? 0 : p.weight,
+            }
+          : p,
+      ),
+    )
+    setLog((prev) =>
+      prev.map((rows, j) =>
+        j === i
+          ? rows.map((s) => (s.done ? s : { ...s, weight: toBw ? 0 : s.weight }))
+          : rows,
+      ),
+    )
   }, [])
 
   const skipRest = useCallback(() => setRest(0), [])
@@ -241,6 +317,8 @@ export function useWorkout({ prefs, logs = [], onSaved }) {
     finish,
     reset,
     toggleSet,
+    addDrop,
+    swapLift,
     bumpWeight: (d) => bump('weight', d),
     bumpReps: (d) => bump('reps', d),
     selectLift,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { dateline, toDisplayVolume, toDisplayWeight } from '../lib/format.js'
+import { dateline, since, toDisplayVolume, toDisplayWeight } from '../lib/format.js'
 
 export default function TodayScreen({
   routines,
@@ -10,6 +10,38 @@ export default function TodayScreen({
   onManage,
 }) {
   const [selectedId, setSelectedId] = useState(routines[0]?.id ?? null)
+
+  const resumable = wk.resumable
+  const resumeBanner = resumable ? (
+    <div className="flex flex-col gap-[12px] border border-accent-700 rounded-[2px] p-[16px]">
+      <div className="text-[13px] uppercase tracking-[0.14em] text-accent-700">
+        Workout in progress
+      </div>
+      <div className="text-[21px] font-semibold leading-[1.15]">
+        {resumable.routine?.name ?? 'Workout'}
+      </div>
+      <div className="text-[14px] text-neutral-700 tabular-nums">
+        {resumable.log?.flat().filter((s) => s.done).length ?? 0} sets logged ·
+        started {since(resumable.startedAt ?? resumable.savedAt)}
+      </div>
+      <div className="flex items-center gap-[16px]">
+        <button
+          type="button"
+          onClick={wk.resume}
+          className="bg-accent text-white text-[17px] font-semibold rounded-[2px] min-h-[48px] px-[20px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700"
+        >
+          Resume
+        </button>
+        <button
+          type="button"
+          onClick={wk.discardSaved}
+          className="text-[13px] uppercase tracking-[0.12em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
+        >
+          Discard
+        </button>
+      </div>
+    </div>
+  ) : null
 
   useEffect(() => {
     if (!routines.some((r) => r.id === selectedId)) {
@@ -26,6 +58,7 @@ export default function TodayScreen({
   if (!routines.length) {
     return (
       <div className="flex flex-col gap-[20px]">
+        {resumeBanner}
         <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
           {dateline()}
         </div>
@@ -49,6 +82,7 @@ export default function TodayScreen({
 
   return (
     <div className="flex flex-col gap-[30px]">
+      {resumeBanner}
       <div className="flex flex-col gap-[10px]">
         <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
           {dateline()}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
-import { loadLogs } from '../lib/workouts.js'
+import { deleteSession, loadLogs, updateSession } from '../lib/workouts.js'
 
 export function useLogs() {
   const { user } = useAuth()
@@ -25,5 +25,18 @@ export function useLogs() {
     refresh()
   }, [refresh])
 
-  return { logs, loading, error, refresh }
+  return {
+    logs,
+    loading,
+    error,
+    refresh,
+    async remove(id) {
+      await deleteSession(user.id, id)
+      await refresh()
+    },
+    async update(id, data) {
+      await updateSession(user.id, id, data)
+      await refresh()
+    },
+  }
 }

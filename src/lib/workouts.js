@@ -50,7 +50,7 @@ export async function loadPlan(userId, routine) {
       ...row,
       weight: Number(ref.weight),
       reps: ref.reps,
-      last: `${Number(ref.weight)} × ${ref.reps}`,
+      last: { weight: Number(ref.weight), reps: ref.reps },
     }
   })
 
@@ -168,4 +168,66 @@ export async function saveSession({ userId, routineId, name, plan, log, elapsed 
   if (setsError) throw setsError
 
   return session.id
+}
+
+export async function deleteSession(userId, sessionId) {
+  const { error } = await supabase
+    .from('sessions')
+    .delete()
+    .eq('id', sessionId)
+    .eq('user_id', userId)
+  if (error) throw error
+}
+
+// Rewrite a past session in place: session_sets are the source of truth, so we
+// wipe and reinsert them (same approach as replaceExercises for routines).
+// lifts: [{ name, sets: [{ weight, reps, done }] }] — weights in pounds.
+export async function updateSession(
+  userId,
+  sessionId,
+  { name, performedOn, elapsedSeconds, lifts },
+) {
+  const rows = []
+  lifts.forEach((lift, liftIndex) => {
+    lift.sets.forEach((s, setIndex) => {
+      rows.push({
+        session_id: sessionId,
+        user_id: userId,
+        lift_index: liftIndex,
+        lift_name: lift.name.trim() || `Lift ${liftIndex + 1}`,
+        set_index: setIndex,
+        weight: Math.max(0, Number(s.weight) || 0),
+        reps: Math.max(0, Math.round(Number(s.reps) || 0)),
+        done: s.done !== false,
+      })
+    })
+  })
+
+  const done = rows.filter((r) => r.done)
+  const totalVolume = done.reduce((n, r) => n + r.weight * r.reps, 0)
+
+  const { error } = await supabase
+    .from('sessions')
+    .update({
+      name: name.trim() || 'Workout',
+      performed_on: performedOn,
+      elapsed_seconds: Math.max(0, Math.round(Number(elapsedSeconds) || 0)),
+      total_volume_lb: totalVolume,
+      set_count: done.length,
+    })
+    .eq('id', sessionId)
+    .eq('user_id', userId)
+  if (error) throw error
+
+  const { error: delError } = await supabase
+    .from('session_sets')
+    .delete()
+    .eq('session_id', sessionId)
+    .eq('user_id', userId)
+  if (delError) throw delError
+
+  if (rows.length) {
+    const { error: insError } = await supabase.from('session_sets').insert(rows)
+    if (insError) throw insError
+  }
 }

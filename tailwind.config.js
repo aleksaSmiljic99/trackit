@@ -7,25 +7,27 @@ export default {
         serif: ['"Source Serif 4"', 'Georgia', 'serif'],
       },
       colors: {
-        bg: '#f3f2f2',
-        surface: '#eae9e9',
-        ink: '#201e1d',
-        divider: 'color-mix(in srgb, #201e1d 16%, transparent)',
+        // Values come from CSS custom properties in index.css so the light/dark
+        // themes can swap them at runtime.
+        bg: 'var(--color-bg)',
+        surface: 'var(--color-surface)',
+        ink: 'var(--color-text)',
+        divider: 'var(--color-divider)',
         accent: {
-          DEFAULT: '#0088b0',
-          100: '#e9f8ff',
-          600: '#1186ac',
-          700: '#006786',
+          DEFAULT: 'var(--color-accent)',
+          100: 'var(--color-accent-100)',
+          600: 'var(--color-accent-600)',
+          700: 'var(--color-accent-700)',
         },
         magenta: {
-          700: '#aa0b56',
+          700: 'var(--color-accent-2-700)',
         },
         neutral: {
-          400: '#bab6b6',
-          500: '#9b9797',
-          600: '#7d7979',
-          700: '#605d5d',
-          800: '#444141',
+          400: 'var(--color-neutral-400)',
+          500: 'var(--color-neutral-500)',
+          600: 'var(--color-neutral-600)',
+          700: 'var(--color-neutral-700)',
+          800: 'var(--color-neutral-800)',
         },
       },
       borderRadius: {

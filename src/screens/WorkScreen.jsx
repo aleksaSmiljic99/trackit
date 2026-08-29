@@ -50,6 +50,11 @@ export default function WorkScreen({ wk, prefs }) {
         <div className="text-[16px] text-neutral-700">
           {doneCount} of {rows.length} sets logged · target {cur.reps} reps
         </div>
+        {cur.last ? (
+          <div className="text-[15px] text-neutral-600 tabular-nums">
+            Last time · {toDisplayWeight(cur.last.weight, prefs.unit)} × {cur.last.reps}
+          </div>
+        ) : null}
       </div>
 
       {/* Set table */}

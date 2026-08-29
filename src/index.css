@@ -5,6 +5,7 @@
 @tailwind utilities;
 
 :root {
+  color-scheme: light;
   --color-bg: #f3f2f2;
   --color-surface: #eae9e9;
   --color-text: #201e1d;
@@ -20,6 +21,46 @@
   --color-neutral-800: #444141;
   --color-divider: color-mix(in srgb, #201e1d 16%, transparent);
   --radius-md: 2px;
+}
+
+/* Dark theme — warm paper-inverted. Applied when the OS asks for dark and the
+   user hasn't forced light, or when the user explicitly picks dark. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --color-bg: #191715;
+    --color-surface: #221f1d;
+    --color-text: #ece7e2;
+    --color-accent: #16a9cf;
+    --color-accent-100: #123039;
+    --color-accent-600: #3fb4d6;
+    --color-accent-700: #74cfe9;
+    --color-accent-2-700: #f4709f;
+    --color-neutral-400: #423e3b;
+    --color-neutral-500: #6f6b68;
+    --color-neutral-600: #948f8b;
+    --color-neutral-700: #b7b1ac;
+    --color-neutral-800: #d3cdc8;
+    --color-divider: color-mix(in srgb, #ece7e2 16%, transparent);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #191715;
+  --color-surface: #221f1d;
+  --color-text: #ece7e2;
+  --color-accent: #16a9cf;
+  --color-accent-100: #123039;
+  --color-accent-600: #3fb4d6;
+  --color-accent-700: #74cfe9;
+  --color-accent-2-700: #f4709f;
+  --color-neutral-400: #423e3b;
+  --color-neutral-500: #6f6b68;
+  --color-neutral-600: #948f8b;
+  --color-neutral-700: #b7b1ac;
+  --color-neutral-800: #d3cdc8;
+  --color-divider: color-mix(in srgb, #ece7e2 16%, transparent);
 }
 
 html,
@@ -40,6 +81,12 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+/* Translucent sticky-header fill — themed, and Tailwind's /opacity modifier
+   doesn't play well with var() colors. */
+.bg-header {
+  background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
 }
 
 :focus-visible {

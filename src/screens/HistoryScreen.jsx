@@ -1,25 +1,60 @@
 import { useState } from 'react'
 import { logDate, longClock, toDisplayVolume, toDisplayWeight } from '../lib/format.js'
 
-function SessionBlock({ session, unit, open, onToggle }) {
+function SessionBlock({ session, unit, open, onToggle, onEdit, onDelete }) {
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
   return (
     <div className="border-t border-divider py-[18px]">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full grid grid-cols-[1fr_auto] gap-[15px] items-baseline text-left"
-        aria-expanded={open}
-      >
-        <div className="flex flex-col gap-[4px]">
-          <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+      <div className="grid grid-cols-[1fr_auto] gap-[15px] items-start">
+        <button
+          type="button"
+          onClick={onToggle}
+          className="flex flex-col gap-[4px] text-left"
+          aria-expanded={open}
+        >
+          <span className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
             {logDate(session.performedOn)}
-          </div>
-          <div className="text-[25px] font-semibold leading-[1.1]">{session.name}</div>
+          </span>
+          <span className="text-[25px] font-semibold leading-[1.1]">{session.name}</span>
+        </button>
+        <div className="flex items-center gap-[14px] pt-[2px]">
+          <button
+            type="button"
+            onClick={onToggle}
+            className="text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center"
+          >
+            {open ? 'Hide' : 'View'}
+          </button>
+          <button
+            type="button"
+            onClick={() => onEdit(session)}
+            className="text-[13px] uppercase tracking-[0.12em] text-neutral-600 min-h-[44px] flex items-center hover:text-accent-700"
+          >
+            Edit
+          </button>
+          {confirmDelete ? (
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmDelete(false)
+                onDelete(session.id)
+              }}
+              className="text-[13px] uppercase tracking-[0.12em] text-magenta-700 min-h-[44px] flex items-center"
+            >
+              Confirm
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              className="text-[13px] uppercase tracking-[0.12em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
+            >
+              Delete
+            </button>
+          )}
         </div>
-        <div className="text-[13px] uppercase tracking-[0.12em] text-accent-700">
-          {open ? 'Hide' : 'View'}
-        </div>
-      </button>
+      </div>
 
       <div className="text-[15px] text-neutral-700 tabular-nums mt-[6px]">
         {session.setCount} sets · {toDisplayVolume(session.volumeLb, unit)} ·{' '}
@@ -50,7 +85,7 @@ function SessionBlock({ session, unit, open, onToggle }) {
   )
 }
 
-export default function HistoryScreen({ logs, loading, error, unit }) {
+export default function HistoryScreen({ logs, loading, error, unit, onEdit, onDelete }) {
   const [openId, setOpenId] = useState(null)
 
   return (
@@ -81,6 +116,8 @@ export default function HistoryScreen({ logs, loading, error, unit }) {
               unit={unit}
               open={openId === s.id}
               onToggle={() => setOpenId((cur) => (cur === s.id ? null : s.id))}
+              onEdit={onEdit}
+              onDelete={onDelete}
             />
           ))}
           <div className="border-t border-divider" />

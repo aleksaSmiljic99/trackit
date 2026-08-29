@@ -7,6 +7,8 @@ import DoneScreen from './screens/DoneScreen.jsx'
 import RoutinesScreen from './screens/RoutinesScreen.jsx'
 import RoutineEditorScreen from './screens/RoutineEditorScreen.jsx'
 import HistoryScreen from './screens/HistoryScreen.jsx'
+import ProgressScreen from './screens/ProgressScreen.jsx'
+import SessionEditorScreen from './screens/SessionEditorScreen.jsx'
 import { useAuth } from './context/AuthContext.jsx'
 import { usePreferences } from './hooks/usePreferences.js'
 import { useRoutines } from './hooks/useRoutines.js'
@@ -41,12 +43,13 @@ function SetupNotice() {
 
 function AuthedApp() {
   const { signOut } = useAuth()
-  const { prefs, toggleUnit } = usePreferences()
+  const { prefs, update, toggleUnit } = usePreferences()
   const routines = useRoutines()
   const history = useHistory()
   const logs = useLogs()
   const wk = useWorkout({
     prefs,
+    logs: logs.logs,
     onSaved: () => {
       routines.refresh()
       history.refresh()
@@ -54,11 +57,13 @@ function AuthedApp() {
     },
   })
 
-  const [view, setView] = useState('today') // 'today' | 'routines' | 'editor'
+  const [view, setView] = useState('today') // today | routines | editor | history | progress | session
   const [editing, setEditing] = useState(null) // routine object, or 'new'
+  const [editingSession, setEditingSession] = useState(null) // session object
 
   const navigate = (v) => {
     setEditing(null)
+    setEditingSession(null)
     setView(v)
   }
 
@@ -66,6 +71,8 @@ function AuthedApp() {
     unit: prefs.unit,
     onToggleUnit: toggleUnit,
     onSignOut: signOut,
+    prefs,
+    onUpdatePrefs: update,
     view,
     onNavigate: navigate,
   }
@@ -104,9 +111,45 @@ function AuthedApp() {
         }}
       />
     )
+  } else if (view === 'session') {
+    content = (
+      <SessionEditorScreen
+        session={editingSession}
+        unit={prefs.unit}
+        onToggleUnit={toggleUnit}
+        onCancel={() => navigate('history')}
+        onSave={async (data) => {
+          await logs.update(editingSession.id, data)
+          history.refresh()
+          navigate('history')
+        }}
+        onDelete={async (id) => {
+          await logs.remove(id)
+          history.refresh()
+          navigate('history')
+        }}
+      />
+    )
   } else if (view === 'history') {
     content = (
       <HistoryScreen
+        logs={logs.logs}
+        loading={logs.loading}
+        error={logs.error}
+        unit={prefs.unit}
+        onEdit={(s) => {
+          setEditingSession(s)
+          setView('session')
+        }}
+        onDelete={async (id) => {
+          await logs.remove(id)
+          history.refresh()
+        }}
+      />
+    )
+  } else if (view === 'progress') {
+    content = (
+      <ProgressScreen
         logs={logs.logs}
         loading={logs.loading}
         error={logs.error}

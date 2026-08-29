@@ -1,5 +1,6 @@
 export const DEFAULT_PREFS = {
   unit: 'lb', // 'lb' | 'kg'
+  theme: 'system', // 'system' | 'light' | 'dark'
   showRestTimer: true,
   restSeconds: 90, // 30–240, step 15
 }

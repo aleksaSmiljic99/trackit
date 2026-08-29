@@ -1,5 +1,15 @@
 import { dateline, longClock, toDisplayVolume, toDisplayWeight } from '../lib/format.js'
 
+function prLabel(hit, unit) {
+  if (hit.kind === 'e1rm') {
+    return `est. 1RM ${toDisplayWeight(Math.round(hit.value), unit)} (${toDisplayWeight(
+      hit.weight,
+      unit,
+    )} × ${hit.reps})`
+  }
+  return `heaviest set ${toDisplayWeight(hit.value, unit)}`
+}
+
 export default function DoneScreen({ wk, prefs }) {
   const loggedSets = wk.log.flat().filter((s) => s.done)
   const volume = loggedSets.reduce((n, s) => n + s.weight * s.reps, 0)
@@ -34,6 +44,23 @@ export default function DoneScreen({ wk, prefs }) {
           <div className="text-[14px] text-magenta-700">{wk.error}</div>
         ) : null}
       </div>
+
+      {wk.prs.length ? (
+        <div className="flex flex-col gap-[10px] border border-accent-700 rounded-[2px] p-[16px]">
+          <div className="text-[13px] uppercase tracking-[0.14em] text-accent-700">
+            New personal record{wk.prs.length > 1 ? 's' : ''}
+          </div>
+          {wk.prs.map((pr) => (
+            <div key={pr.name} className="text-[16px] tabular-nums">
+              <span className="font-semibold">{pr.name}</span>
+              <span className="text-neutral-700">
+                {' — '}
+                {pr.hits.map((h) => prLabel(h, prefs.unit)).join(' · ')}
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       <div className="flex flex-col gap-[4px]">
         {rows.map((r) => (

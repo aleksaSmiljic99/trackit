@@ -89,6 +89,16 @@ export function shortWeekday(date) {
   return WEEKDAYS[date.getDay()].slice(0, 3)
 }
 
+// "just now" / "25 min ago" / "1h 40m ago" — for the resume-workout banner.
+export function since(epochMs, now = Date.now()) {
+  const mins = Math.max(0, Math.round((now - epochMs) / 60000))
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins} min ago`
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return m ? `${h}h ${m}m ago` : `${h}h ago`
+}
+
 export function daysAgo(fromDate, now = new Date()) {
   const ms = now.setHours(0, 0, 0, 0) - new Date(fromDate).setHours(0, 0, 0, 0)
   const days = Math.round(ms / 86400000)

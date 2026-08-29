@@ -26,6 +26,16 @@ export function usePreferences() {
     }
   }, [prefs])
 
+  // Drive the dark/light theme. 'system' leaves it to the CSS media query.
+  useEffect(() => {
+    const root = document.documentElement
+    if (prefs.theme === 'light' || prefs.theme === 'dark') {
+      root.setAttribute('data-theme', prefs.theme)
+    } else {
+      root.removeAttribute('data-theme')
+    }
+  }, [prefs.theme])
+
   const update = useCallback((patch) => setPrefs((p) => ({ ...p, ...patch })), [])
   const toggleUnit = useCallback(
     () => setPrefs((p) => ({ ...p, unit: p.unit === 'kg' ? 'lb' : 'kg' })),

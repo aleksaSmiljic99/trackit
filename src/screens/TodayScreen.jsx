@@ -13,8 +13,8 @@ export default function TodayScreen({
 
   const resumable = wk.resumable
   const resumeBanner = resumable ? (
-    <div className="flex flex-col gap-[12px] border border-accent-700 rounded-[2px] p-[16px]">
-      <div className="text-[13px] uppercase tracking-[0.14em] text-accent-700">
+    <div className="flex flex-col gap-[12px] bg-surface border border-divider rounded-xl p-[18px]">
+      <div className="text-[12px] tracking-[0.02em] text-accent-700">
         Workout in progress
       </div>
       <div className="text-[21px] font-semibold leading-[1.15]">
@@ -28,14 +28,14 @@ export default function TodayScreen({
         <button
           type="button"
           onClick={wk.resume}
-          className="bg-accent text-white text-[17px] font-semibold rounded-[2px] min-h-[48px] px-[20px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700"
+          className="bg-accent text-white text-[17px] font-semibold rounded min-h-[48px] px-[20px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700"
         >
           Resume
         </button>
         <button
           type="button"
           onClick={wk.discardSaved}
-          className="text-[13px] uppercase tracking-[0.12em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
+          className="text-[13px] tracking-[0.02em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
         >
           Discard
         </button>
@@ -59,10 +59,10 @@ export default function TodayScreen({
     return (
       <div className="flex flex-col gap-[20px]">
         {resumeBanner}
-        <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+        <div className="text-[13px] tracking-[0.02em] text-neutral-600">
           {dateline()}
         </div>
-        <h1 className="text-[46px] font-semibold leading-[1.02] tracking-[-0.01em]">
+        <h1 className="text-[34px] font-semibold leading-[1.02] tracking-[-0.02em]">
           Build your split
         </h1>
         <p className="text-[17px] text-neutral-700">
@@ -72,7 +72,7 @@ export default function TodayScreen({
         <button
           type="button"
           onClick={onManage}
-          className="self-start bg-accent text-white text-[20px] font-semibold rounded-[2px] min-h-[56px] px-[24px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700"
+          className="self-start bg-accent text-white text-[20px] font-semibold rounded min-h-[56px] px-[24px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700"
         >
           Create your first day
         </button>
@@ -84,7 +84,7 @@ export default function TodayScreen({
     <div className="flex flex-col gap-[30px]">
       {resumeBanner}
       <div className="flex flex-col gap-[10px]">
-        <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+        <div className="text-[13px] tracking-[0.02em] text-neutral-600">
           {dateline()}
         </div>
 
@@ -99,8 +99,8 @@ export default function TodayScreen({
                 onClick={() => setSelectedId(r.id)}
                 className={
                   active
-                    ? 'px-[14px] py-[10px] min-h-[44px] flex items-center rounded-[2px] bg-accent text-white text-[15px]'
-                    : 'px-[14px] py-[10px] min-h-[44px] flex items-center rounded-[2px] border border-neutral-400 text-neutral-800 text-[15px] hover:border-accent hover:text-accent-700'
+                    ? 'px-[14px] py-[10px] min-h-[44px] flex items-center rounded bg-accent text-white text-[15px]'
+                    : 'px-[14px] py-[10px] min-h-[44px] flex items-center rounded border border-neutral-400 text-neutral-800 text-[15px] hover:border-accent hover:text-accent-700'
                 }
               >
                 {r.name}
@@ -109,7 +109,7 @@ export default function TodayScreen({
           })}
         </div>
 
-        <h1 className="text-[46px] font-semibold leading-[1.02] tracking-[-0.01em] pt-[6px]">
+        <h1 className="text-[34px] font-semibold leading-[1.02] tracking-[-0.02em] pt-[6px]">
           {selected?.name}
         </h1>
         <div className="text-[17px] text-neutral-700">
@@ -142,7 +142,7 @@ export default function TodayScreen({
         type="button"
         onClick={() => selected && wk.begin(selected)}
         disabled={!selected?.exercises.length || wk.starting}
-        className="bg-accent text-white text-[20px] font-semibold tracking-[0.02em] rounded-[2px] min-h-[56px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700 disabled:opacity-50"
+        className="bg-accent text-white text-[20px] font-semibold tracking-[0.02em] rounded min-h-[56px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700 disabled:opacity-50"
       >
         {wk.starting ? 'Loading…' : 'Begin workout'}
       </button>
@@ -155,7 +155,7 @@ export default function TodayScreen({
         <button
           type="button"
           onClick={onManage}
-          className="text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center self-start hover:text-accent-600"
+          className="text-[13px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center self-start hover:text-accent-600"
         >
           Add exercises to this day
         </button>
@@ -164,7 +164,7 @@ export default function TodayScreen({
       {/* Recent days */}
       {recent.length ? (
         <div className="flex flex-col gap-[15px] pt-[6px]">
-          <div className="text-[13px] uppercase tracking-[0.16em] text-neutral-600">
+          <div className="text-[13px] tracking-[0.02em] text-neutral-600">
             Recent days
           </div>
           {recent.map((day, i) => (

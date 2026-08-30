@@ -29,8 +29,8 @@ function SetupNotice() {
   return (
     <Centered>
       <div className="flex flex-col gap-[15px]">
-        <div className="text-[13px] font-semibold uppercase tracking-[0.2em]">TrackIt</div>
-        <h1 className="text-[38px] font-semibold leading-[1.05]">Connect Supabase</h1>
+        <div className="text-[13px] font-semibold tracking-[0.06em]">TrackIt</div>
+        <h1 className="text-[28px] font-semibold leading-[1.05]">Connect Supabase</h1>
         <p className="text-[17px] text-neutral-700">
           Create <code>.env</code> from <code>.env.example</code> and set{' '}
           <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>, then

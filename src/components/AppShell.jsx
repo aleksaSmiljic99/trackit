@@ -37,7 +37,7 @@ export default function AppShell({
       onClick={() => onNavigate(id)}
       aria-current={view === id ? "page" : undefined}
       className={
-        "text-[13px] uppercase tracking-[0.12em] min-h-[44px] flex items-center " +
+        "text-[13px] tracking-[0.02em] min-h-[44px] flex items-center " +
         (view === id ? "text-accent-700" : "text-neutral-600 hover:text-accent-700")
       }
     >
@@ -54,7 +54,7 @@ export default function AppShell({
           <button
             type="button"
             onClick={() => onNavigate("today")}
-            className="text-[13px] font-semibold uppercase tracking-[0.2em] shrink-0"
+            className="text-[15px] font-semibold tracking-[-0.01em] shrink-0"
           >
             TrackIt
           </button>
@@ -73,7 +73,7 @@ export default function AppShell({
           <button
             type="button"
             onClick={onToggleUnit}
-            className="text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600 shrink-0"
+            className="text-[13px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600 shrink-0"
           >
             {unit === "kg" ? "kg" : "lb"}
           </button>
@@ -94,15 +94,15 @@ export default function AppShell({
               {menuOpen ? (
                 <div
                   role="menu"
-                  className="absolute right-0 top-[48px] w-[248px] bg-bg border border-divider rounded-[2px] shadow-lg p-[14px] flex flex-col gap-[12px]"
+                  className="absolute right-0 top-[48px] w-[248px] bg-bg border border-divider rounded shadow-lg p-[14px] flex flex-col gap-[12px]"
                 >
                   {canSetRest ? (
                     <>
                       <div className="flex flex-col gap-[6px]">
-                        <span className="text-[13px] uppercase tracking-[0.12em] text-neutral-700">
+                        <span className="text-[13px] tracking-[0.02em] text-neutral-700">
                           Theme
                         </span>
-                        <div className="inline-flex overflow-hidden rounded-[2px] border border-neutral-400 self-start">
+                        <div className="inline-flex overflow-hidden rounded border border-neutral-400 self-start">
                           {["system", "light", "dark"].map((t) => (
                             <button
                               key={t}
@@ -125,7 +125,7 @@ export default function AppShell({
                       <div className="border-t border-divider" />
 
                       <div className="flex items-center justify-between gap-[10px]">
-                        <span className="text-[13px] uppercase tracking-[0.12em] text-neutral-700">
+                        <span className="text-[13px] tracking-[0.02em] text-neutral-700">
                           Rest timer
                         </span>
                         <button
@@ -134,7 +134,7 @@ export default function AppShell({
                             onUpdatePrefs({ showRestTimer: !prefs.showRestTimer })
                           }
                           className={
-                            "text-[13px] uppercase tracking-[0.1em] min-h-[36px] px-[10px] rounded-[2px] " +
+                            "text-[13px] tracking-[0.02em] min-h-[36px] px-[10px] rounded " +
                             (prefs.showRestTimer
                               ? "bg-accent text-white"
                               : "border border-neutral-400 text-neutral-700")
@@ -146,7 +146,7 @@ export default function AppShell({
 
                       {prefs.showRestTimer ? (
                         <div className="flex items-center justify-between gap-[10px]">
-                          <span className="text-[13px] uppercase tracking-[0.12em] text-neutral-700">
+                          <span className="text-[13px] tracking-[0.02em] text-neutral-700">
                             Rest length
                           </span>
                           <div className="flex items-center gap-[8px] tabular-nums">
@@ -157,7 +157,7 @@ export default function AppShell({
                                   restSeconds: Math.max(30, prefs.restSeconds - 15),
                                 })
                               }
-                              className="w-[32px] h-[32px] border border-neutral-400 rounded-[2px] flex items-center justify-center text-[18px] hover:border-accent hover:text-accent-700"
+                              className="w-[32px] h-[32px] border border-neutral-400 rounded flex items-center justify-center text-[18px] hover:border-accent hover:text-accent-700"
                               aria-label="less rest"
                             >
                               −
@@ -172,7 +172,7 @@ export default function AppShell({
                                   restSeconds: Math.min(240, prefs.restSeconds + 15),
                                 })
                               }
-                              className="w-[32px] h-[32px] border border-neutral-400 rounded-[2px] flex items-center justify-center text-[18px] hover:border-accent hover:text-accent-700"
+                              className="w-[32px] h-[32px] border border-neutral-400 rounded flex items-center justify-center text-[18px] hover:border-accent hover:text-accent-700"
                               aria-label="more rest"
                             >
                               +
@@ -191,7 +191,7 @@ export default function AppShell({
                       setMenuOpen(false);
                       onSignOut();
                     }}
-                    className="text-[13px] uppercase tracking-[0.12em] text-neutral-700 min-h-[44px] flex items-center hover:text-magenta-700"
+                    className="text-[13px] tracking-[0.02em] text-neutral-700 min-h-[44px] flex items-center hover:text-magenta-700"
                   >
                     Sign out
                   </button>

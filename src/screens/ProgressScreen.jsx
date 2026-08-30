@@ -70,7 +70,7 @@ function ExerciseCard({ ex, unit }) {
         <div className="text-[21px] font-semibold leading-[1.15]">
           {ex.name}
           {bw ? (
-            <span className="ml-[8px] text-[12px] uppercase tracking-[0.1em] text-neutral-600">
+            <span className="ml-[8px] text-[12px] tracking-[0.02em] text-neutral-600">
               BW
             </span>
           ) : null}
@@ -135,10 +135,10 @@ export default function ProgressScreen({ logs, loading, error, unit }) {
   return (
     <div className="flex flex-col gap-[24px]">
       <div className="flex flex-col gap-[10px]">
-        <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+        <div className="text-[13px] tracking-[0.02em] text-neutral-600">
           Strength over time
         </div>
-        <h1 className="text-[46px] font-semibold leading-[1.02] tracking-[-0.01em]">
+        <h1 className="text-[34px] font-semibold leading-[1.02] tracking-[-0.02em]">
           Progress
         </h1>
       </div>

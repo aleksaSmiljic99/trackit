@@ -15,7 +15,7 @@ function SessionBlock({ session, unit, open, onToggle, onEdit, onDelete }) {
           className="flex flex-col gap-[4px] text-left"
           aria-expanded={open}
         >
-          <span className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+          <span className="text-[13px] tracking-[0.02em] text-neutral-600">
             {logDate(session.performedOn)}
           </span>
           <span className="text-[25px] font-semibold leading-[1.1]">{session.name}</span>
@@ -24,14 +24,14 @@ function SessionBlock({ session, unit, open, onToggle, onEdit, onDelete }) {
           <button
             type="button"
             onClick={onToggle}
-            className="text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center"
+            className="text-[13px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center"
           >
             {open ? 'Hide' : 'View'}
           </button>
           <button
             type="button"
             onClick={() => onEdit(session)}
-            className="text-[13px] uppercase tracking-[0.12em] text-neutral-600 min-h-[44px] flex items-center hover:text-accent-700"
+            className="text-[13px] tracking-[0.02em] text-neutral-600 min-h-[44px] flex items-center hover:text-accent-700"
           >
             Edit
           </button>
@@ -42,7 +42,7 @@ function SessionBlock({ session, unit, open, onToggle, onEdit, onDelete }) {
                 setConfirmDelete(false)
                 onDelete(session.id)
               }}
-              className="text-[13px] uppercase tracking-[0.12em] text-magenta-700 min-h-[44px] flex items-center"
+              className="text-[13px] tracking-[0.02em] text-magenta-700 min-h-[44px] flex items-center"
             >
               Confirm
             </button>
@@ -50,7 +50,7 @@ function SessionBlock({ session, unit, open, onToggle, onEdit, onDelete }) {
             <button
               type="button"
               onClick={() => setConfirmDelete(true)}
-              className="text-[13px] uppercase tracking-[0.12em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
+              className="text-[13px] tracking-[0.02em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
             >
               Delete
             </button>
@@ -71,7 +71,7 @@ function SessionBlock({ session, unit, open, onToggle, onEdit, onDelete }) {
               <div key={i} className="flex flex-col gap-[6px]">
                 <div className="text-[17px] font-semibold">
                   {gl ? (
-                    <span className="text-[13px] uppercase tracking-[0.1em] text-accent-700 mr-[6px]">
+                    <span className="text-[13px] tracking-[0.02em] text-accent-700 mr-[6px]">
                       {gl}
                     </span>
                   ) : null}
@@ -110,10 +110,10 @@ export default function HistoryScreen({ logs, loading, error, unit, onEdit, onDe
   return (
     <div className="flex flex-col gap-[24px]">
       <div className="flex flex-col gap-[10px]">
-        <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+        <div className="text-[13px] tracking-[0.02em] text-neutral-600">
           Every session
         </div>
-        <h1 className="text-[46px] font-semibold leading-[1.02] tracking-[-0.01em]">
+        <h1 className="text-[34px] font-semibold leading-[1.02] tracking-[-0.02em]">
           History
         </h1>
       </div>

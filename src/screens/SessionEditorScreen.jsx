@@ -128,13 +128,13 @@ export default function SessionEditorScreen({
 
   const numInput = 'input !w-[72px] text-center tabular-nums px-[6px]'
   const unitBtn = (u) =>
-    'px-[8px] h-[24px] text-[12px] uppercase tracking-[0.08em] ' +
+    'px-[8px] h-[24px] text-[12px] tracking-[0.02em] ' +
     (unit === u ? 'bg-accent text-white' : 'text-neutral-600 hover:text-accent-700')
 
   return (
     <div className="flex flex-col gap-[24px]">
       <div className="flex flex-col gap-[10px]">
-        <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+        <div className="text-[13px] tracking-[0.02em] text-neutral-600">
           Edit session
         </div>
         <input
@@ -147,7 +147,7 @@ export default function SessionEditorScreen({
 
       <div className="flex flex-wrap items-end gap-[20px]">
         <label className="field">
-          <span className="block text-[12px] uppercase tracking-[0.12em] text-neutral-600 mb-[5px]">
+          <span className="block text-[12px] tracking-[0.02em] text-neutral-600 mb-[5px]">
             Date
           </span>
           <input
@@ -158,7 +158,7 @@ export default function SessionEditorScreen({
           />
         </label>
         <label className="field">
-          <span className="block text-[12px] uppercase tracking-[0.12em] text-neutral-600 mb-[5px]">
+          <span className="block text-[12px] tracking-[0.02em] text-neutral-600 mb-[5px]">
             Minutes
           </span>
           <input
@@ -170,7 +170,7 @@ export default function SessionEditorScreen({
             onChange={(e) => setMinutes(e.target.value)}
           />
         </label>
-        <div className="inline-flex overflow-hidden rounded-[2px] border border-divider">
+        <div className="inline-flex overflow-hidden rounded border border-divider">
           <button type="button" className={unitBtn('lb')} onClick={() => unit !== 'lb' && onToggleUnit()}>
             lb
           </button>
@@ -200,7 +200,7 @@ export default function SessionEditorScreen({
               </button>
             </div>
 
-            <div className="grid grid-cols-[28px_1fr_1fr_32px] gap-[10px] text-[12px] uppercase tracking-[0.12em] text-neutral-600">
+            <div className="grid grid-cols-[28px_1fr_1fr_32px] gap-[10px] text-[12px] tracking-[0.02em] text-neutral-600">
               <div>Set</div>
               <div>Weight ({unit})</div>
               <div>Reps</div>
@@ -241,7 +241,7 @@ export default function SessionEditorScreen({
             <button
               type="button"
               onClick={() => addSet(li)}
-              className="self-start text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
+              className="self-start text-[13px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
             >
               + Add set
             </button>
@@ -251,7 +251,7 @@ export default function SessionEditorScreen({
         <button
           type="button"
           onClick={addLift}
-          className="self-start text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600 border-t border-divider pt-[16px] w-full"
+          className="self-start text-[13px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600 border-t border-divider pt-[16px] w-full"
         >
           + Add exercise
         </button>
@@ -264,21 +264,21 @@ export default function SessionEditorScreen({
           type="button"
           onClick={save}
           disabled={busy}
-          className="bg-accent text-white text-[20px] font-semibold rounded-[2px] min-h-[56px] px-[24px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700 disabled:opacity-50"
+          className="bg-accent text-white text-[20px] font-semibold rounded min-h-[56px] px-[24px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700 disabled:opacity-50"
         >
           {busy ? 'Saving…' : 'Save changes'}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="text-[13px] uppercase tracking-[0.12em] text-neutral-600 min-h-[44px] flex items-center hover:text-accent-700"
+          className="text-[13px] tracking-[0.02em] text-neutral-600 min-h-[44px] flex items-center hover:text-accent-700"
         >
           Cancel
         </button>
         <button
           type="button"
           onClick={() => onDelete(session.id)}
-          className="ml-auto text-[13px] uppercase tracking-[0.12em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
+          className="ml-auto text-[13px] tracking-[0.02em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
         >
           Delete session
         </button>

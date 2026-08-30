@@ -38,12 +38,12 @@ export default function DoneScreen({ wk, prefs }) {
 
   return (
     <div className="flex flex-col gap-[30px]">
-      <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+      <div className="text-[13px] tracking-[0.02em] text-neutral-600">
         {dateline()} · logged
       </div>
 
       <div className="flex flex-col gap-[8px]">
-        <h1 className="text-[46px] font-semibold leading-[1.02]">{wk.routineName}</h1>
+        <h1 className="text-[34px] font-semibold leading-[1.02]">{wk.routineName}</h1>
         <div className="text-[18px] text-neutral-700">
           {loggedSets.length} sets · {toDisplayVolume(volume, prefs.unit)} total volume ·{' '}
           {longClock(wk.elapsed)}
@@ -57,8 +57,8 @@ export default function DoneScreen({ wk, prefs }) {
       </div>
 
       {wk.prs.length ? (
-        <div className="flex flex-col gap-[10px] border border-accent-700 rounded-[2px] p-[16px]">
-          <div className="text-[13px] uppercase tracking-[0.14em] text-accent-700">
+        <div className="flex flex-col gap-[10px] border border-accent-700 rounded p-[16px]">
+          <div className="text-[13px] tracking-[0.02em] text-accent-700">
             New personal record{wk.prs.length > 1 ? 's' : ''}
           </div>
           {wk.prs.map((pr) => (
@@ -88,7 +88,7 @@ export default function DoneScreen({ wk, prefs }) {
       <button
         type="button"
         onClick={wk.reset}
-        className="bg-accent text-white text-[20px] font-semibold rounded-[2px] min-h-[56px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700"
+        className="bg-accent text-white text-[20px] font-semibold rounded min-h-[56px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700"
       >
         Back to today
       </button>

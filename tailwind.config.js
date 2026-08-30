@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        serif: ['"Source Serif 4"', 'Georgia', 'serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       colors: {
         // Values come from CSS custom properties in index.css so the light/dark
@@ -31,16 +31,21 @@ export default {
         },
       },
       borderRadius: {
-        DEFAULT: '2px',
+        DEFAULT: '10px',
       },
       keyframes: {
         rest: {
           from: { opacity: '0', transform: 'translateY(6px)' },
           to: { opacity: '1', transform: 'none' },
         },
+        fade: {
+          from: { opacity: '0', transform: 'translateY(4px)' },
+          to: { opacity: '1', transform: 'none' },
+        },
       },
       animation: {
         rest: 'rest 220ms ease-out',
+        fade: 'fade 180ms ease-out',
       },
     },
   },

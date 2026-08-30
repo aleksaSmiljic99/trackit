@@ -36,13 +36,13 @@ export default function AuthScreen() {
 
   return (
     <div className="flex flex-col gap-[30px]">
-      <div className="text-[13px] font-semibold uppercase tracking-[0.2em]">TrackIt</div>
+      <div className="text-[15px] font-semibold tracking-[-0.01em]">TrackIt</div>
 
       <div className="flex flex-col gap-[10px]">
-        <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+        <div className="text-[13px] tracking-[0.02em] text-neutral-600">
           {isSignup ? 'New account' : 'Welcome back'}
         </div>
-        <h1 className="text-[46px] font-semibold leading-[1.02] tracking-[-0.01em]">
+        <h1 className="text-[34px] font-semibold leading-[1.02] tracking-[-0.02em]">
           {isSignup ? 'Create account' : 'Sign in'}
         </h1>
         <div className="text-[17px] text-neutral-700">
@@ -84,7 +84,7 @@ export default function AuthScreen() {
         <button
           type="submit"
           disabled={busy}
-          className="bg-accent text-white text-[20px] font-semibold tracking-[0.02em] rounded-[2px] min-h-[56px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700 disabled:opacity-50"
+          className="bg-accent text-white text-[20px] font-semibold tracking-[0.02em] rounded min-h-[56px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700 disabled:opacity-50"
         >
           {busy ? 'Working…' : isSignup ? 'Create account' : 'Begin'}
         </button>
@@ -97,7 +97,7 @@ export default function AuthScreen() {
           setError(null)
           setNotice(null)
         }}
-        className="text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center self-start hover:text-accent-600"
+        className="text-[13px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center self-start hover:text-accent-600"
       >
         {isSignup ? 'Have an account? Sign in' : 'New here? Create an account'}
       </button>

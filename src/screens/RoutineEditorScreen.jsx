@@ -178,13 +178,13 @@ export default function RoutineEditorScreen({
   }
 
   const unitBtn = (u) =>
-    'px-[8px] h-[24px] text-[12px] uppercase tracking-[0.08em] ' +
+    'px-[8px] h-[24px] text-[12px] tracking-[0.02em] ' +
     (unit === u ? 'bg-accent text-white' : 'text-neutral-600 hover:text-accent-700')
 
   return (
     <div className="flex flex-col gap-[24px]">
       <div className="flex flex-col gap-[10px]">
-        <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+        <div className="text-[13px] tracking-[0.02em] text-neutral-600">
           {editing ? 'Edit day' : 'New day'}
         </div>
         <input
@@ -197,7 +197,7 @@ export default function RoutineEditorScreen({
 
       {!editing ? (
         <div className="flex flex-col gap-[10px]">
-          <div className="text-[12px] uppercase tracking-[0.14em] text-neutral-600">
+          <div className="text-[12px] tracking-[0.02em] text-neutral-600">
             Start from a template
           </div>
           <div className="flex flex-wrap gap-[10px]">
@@ -206,7 +206,7 @@ export default function RoutineEditorScreen({
                 type="button"
                 key={s.name}
                 onClick={() => applyStarter(s)}
-                className="px-[14px] py-[10px] min-h-[44px] flex items-center rounded-[2px] border border-neutral-400 text-neutral-800 text-[15px] hover:border-accent hover:text-accent-700"
+                className="px-[14px] py-[10px] min-h-[44px] flex items-center rounded border border-neutral-400 text-neutral-800 text-[15px] hover:border-accent hover:text-accent-700"
               >
                 {s.name}
               </button>
@@ -216,12 +216,12 @@ export default function RoutineEditorScreen({
       ) : null}
 
       <div className="flex flex-col gap-[12px]">
-        <div className="grid grid-cols-[72px_72px_96px_32px] sm:grid-cols-[1fr_72px_72px_96px_32px] gap-[10px] items-center text-[12px] uppercase tracking-[0.14em] text-neutral-600">
+        <div className="grid grid-cols-[72px_72px_96px_32px] sm:grid-cols-[1fr_72px_72px_96px_32px] gap-[10px] items-center text-[12px] tracking-[0.02em] text-neutral-600">
           <div className="hidden sm:block">Exercise</div>
           <div className="text-center">Sets</div>
           <div className="text-center">Reps</div>
           <div className="flex justify-start">
-            <div className="inline-flex overflow-hidden rounded-[2px] border border-divider">
+            <div className="inline-flex overflow-hidden rounded border border-divider">
               <button type="button" className={unitBtn('lb')} onClick={() => unit !== 'lb' && onToggleUnit()}>
                 lb
               </button>
@@ -257,7 +257,7 @@ export default function RoutineEditorScreen({
                     {r.name || 'Choose exercise'}
                   </span>
                   {bw ? (
-                    <span className="ml-auto shrink-0 text-[11px] uppercase tracking-[0.1em] text-neutral-600">
+                    <span className="ml-auto shrink-0 text-[11px] tracking-[0.02em] text-neutral-600">
                       BW
                     </span>
                   ) : null}
@@ -314,7 +314,7 @@ export default function RoutineEditorScreen({
                   aria-pressed={linkedAfter}
                   aria-label={linkedAfter ? 'Unlink superset' : 'Link as superset'}
                   className={
-                    'self-start text-[11px] uppercase tracking-[0.12em] h-[20px] flex items-center gap-[6px] ' +
+                    'self-start text-[11px] tracking-[0.02em] h-[20px] flex items-center gap-[6px] ' +
                     (linkedAfter
                       ? 'text-accent-700'
                       : 'text-neutral-400 hover:text-accent-700')
@@ -330,7 +330,7 @@ export default function RoutineEditorScreen({
         <button
           type="button"
           onClick={addRow}
-          className="self-start text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
+          className="self-start text-[13px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
         >
           + Add exercise
         </button>
@@ -350,14 +350,14 @@ export default function RoutineEditorScreen({
           type="button"
           onClick={save}
           disabled={busy}
-          className="bg-accent text-white text-[20px] font-semibold rounded-[2px] min-h-[56px] px-[24px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700 disabled:opacity-50"
+          className="bg-accent text-white text-[20px] font-semibold rounded min-h-[56px] px-[24px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700 disabled:opacity-50"
         >
           {busy ? 'Saving…' : editing ? 'Save changes' : 'Create day'}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="text-[13px] uppercase tracking-[0.12em] text-neutral-600 min-h-[44px] flex items-center hover:text-accent-700"
+          className="text-[13px] tracking-[0.02em] text-neutral-600 min-h-[44px] flex items-center hover:text-accent-700"
         >
           Cancel
         </button>
@@ -365,7 +365,7 @@ export default function RoutineEditorScreen({
           <button
             type="button"
             onClick={() => onDelete(initial.id)}
-            className="ml-auto text-[13px] uppercase tracking-[0.12em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
+            className="ml-auto text-[13px] tracking-[0.02em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
           >
             Delete day
           </button>

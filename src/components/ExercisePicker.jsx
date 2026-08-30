@@ -106,7 +106,7 @@ export default function ExercisePicker({
       <span className="text-[17px] font-semibold leading-[1.15]">
         {ex.name}
         {ex.loadMode === 'bodyweight' ? (
-          <span className="ml-[8px] text-[12px] uppercase tracking-[0.1em] text-neutral-600">
+          <span className="ml-[8px] text-[12px] tracking-[0.02em] text-neutral-600">
             BW
           </span>
         ) : null}
@@ -121,11 +121,11 @@ export default function ExercisePicker({
     <div className="fixed inset-0 z-50 bg-bg flex flex-col">
       <div className="mx-auto w-full max-w-[620px] px-6 sm:px-8 py-5 flex flex-col gap-[14px] flex-1 min-h-0">
         <div className="flex items-center justify-between gap-[15px]">
-          <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">{title}</div>
+          <div className="text-[13px] tracking-[0.02em] text-neutral-600">{title}</div>
           <button
             type="button"
             onClick={onClose}
-            className="text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center"
+            className="text-[13px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center"
           >
             Close
           </button>
@@ -153,7 +153,7 @@ export default function ExercisePicker({
 
           {suggestions.length ? (
             <div className="mb-[10px]">
-              <div className="text-[12px] uppercase tracking-[0.14em] text-neutral-600 pt-[14px] pb-[2px]">
+              <div className="text-[12px] tracking-[0.02em] text-neutral-600 pt-[14px] pb-[2px]">
                 Swap suggestions
               </div>
               {suggestions.map((ex) => (
@@ -164,7 +164,7 @@ export default function ExercisePicker({
 
           {groups.map(([muscle, list]) => (
             <div key={muscle}>
-              <div className="text-[12px] uppercase tracking-[0.14em] text-neutral-600 pt-[14px] pb-[2px]">
+              <div className="text-[12px] tracking-[0.02em] text-neutral-600 pt-[14px] pb-[2px]">
                 {muscle}
               </div>
               {list.map((ex) => (

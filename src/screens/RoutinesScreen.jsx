@@ -6,10 +6,10 @@ export default function RoutinesScreen({ routines, loading, error, onNew, onEdit
   return (
     <div className="flex flex-col gap-[30px]">
       <div className="flex flex-col gap-[10px]">
-        <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+        <div className="text-[13px] tracking-[0.02em] text-neutral-600">
           Your split
         </div>
-        <h1 className="text-[46px] font-semibold leading-[1.02] tracking-[-0.01em]">
+        <h1 className="text-[34px] font-semibold leading-[1.02] tracking-[-0.02em]">
           Workout days
         </h1>
         <p className="text-[17px] text-neutral-700">
@@ -40,7 +40,7 @@ export default function RoutinesScreen({ routines, loading, error, onNew, onEdit
                 <button
                   type="button"
                   onClick={() => onEdit(r)}
-                  className="text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
+                  className="text-[13px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
                 >
                   Edit
                 </button>
@@ -51,7 +51,7 @@ export default function RoutinesScreen({ routines, loading, error, onNew, onEdit
                       setPendingDelete(null)
                       onDelete(r.id)
                     }}
-                    className="text-[13px] uppercase tracking-[0.12em] text-magenta-700 min-h-[44px] flex items-center"
+                    className="text-[13px] tracking-[0.02em] text-magenta-700 min-h-[44px] flex items-center"
                   >
                     Confirm
                   </button>
@@ -59,7 +59,7 @@ export default function RoutinesScreen({ routines, loading, error, onNew, onEdit
                   <button
                     type="button"
                     onClick={() => setPendingDelete(r.id)}
-                    className="text-[13px] uppercase tracking-[0.12em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
+                    className="text-[13px] tracking-[0.02em] text-neutral-600 min-h-[44px] flex items-center hover:text-magenta-700"
                   >
                     Delete
                   </button>
@@ -76,7 +76,7 @@ export default function RoutinesScreen({ routines, loading, error, onNew, onEdit
       <button
         type="button"
         onClick={onNew}
-        className="self-start bg-accent text-white text-[20px] font-semibold rounded-[2px] min-h-[56px] px-[24px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700"
+        className="self-start bg-accent text-white text-[20px] font-semibold rounded min-h-[56px] px-[24px] flex items-center justify-center hover:bg-accent-600 active:bg-accent-700"
       >
         New workout day
       </button>

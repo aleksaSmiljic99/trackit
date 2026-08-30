@@ -1,66 +1,66 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Dark-first minimalist palette. Light is the secondary theme, applied when the
+   OS asks for light and the user hasn't forced dark, or when they pick light. */
 :root {
-  color-scheme: light;
-  --color-bg: #f3f2f2;
-  --color-surface: #eae9e9;
-  --color-text: #201e1d;
-  --color-accent: #0088b0;
-  --color-accent-100: #e9f8ff;
-  --color-accent-600: #1186ac;
-  --color-accent-700: #006786;
-  --color-accent-2-700: #aa0b56;
-  --color-neutral-400: #bab6b6;
-  --color-neutral-500: #9b9797;
-  --color-neutral-600: #7d7979;
-  --color-neutral-700: #605d5d;
-  --color-neutral-800: #444141;
-  --color-divider: color-mix(in srgb, #201e1d 16%, transparent);
-  --radius-md: 2px;
+  color-scheme: dark;
+  --color-bg: #0f0f0f;
+  --color-surface: #1a1a1a;
+  --color-text: #fafafa;
+  --color-accent: #6e79ff;
+  --color-accent-100: #1b1b3a;
+  --color-accent-600: #5b67f0;
+  --color-accent-700: #aab2ff;
+  --color-accent-2-700: #ff6b81;
+  --color-neutral-400: #2b2b2b;
+  --color-neutral-500: #5c5c5c;
+  --color-neutral-600: #8a8a8a;
+  --color-neutral-700: #b0b0b0;
+  --color-neutral-800: #d4d4d4;
+  --color-divider: color-mix(in srgb, #fafafa 9%, transparent);
+  --radius-md: 10px;
 }
 
-/* Dark theme — warm paper-inverted. Applied when the OS asks for dark and the
-   user hasn't forced light, or when the user explicitly picks dark. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    color-scheme: dark;
-    --color-bg: #191715;
-    --color-surface: #221f1d;
-    --color-text: #ece7e2;
-    --color-accent: #16a9cf;
-    --color-accent-100: #123039;
-    --color-accent-600: #3fb4d6;
-    --color-accent-700: #74cfe9;
-    --color-accent-2-700: #f4709f;
-    --color-neutral-400: #423e3b;
-    --color-neutral-500: #6f6b68;
-    --color-neutral-600: #948f8b;
-    --color-neutral-700: #b7b1ac;
-    --color-neutral-800: #d3cdc8;
-    --color-divider: color-mix(in srgb, #ece7e2 16%, transparent);
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    --color-bg: #ffffff;
+    --color-surface: #f6f6f7;
+    --color-text: #0a0a0a;
+    --color-accent: #5b63e6;
+    --color-accent-100: #eef0ff;
+    --color-accent-600: #4a52d8;
+    --color-accent-700: #4640c9;
+    --color-accent-2-700: #d1244b;
+    --color-neutral-400: #dcdcdc;
+    --color-neutral-500: #a3a3a3;
+    --color-neutral-600: #6f6f6f;
+    --color-neutral-700: #4a4a4a;
+    --color-neutral-800: #2b2b2b;
+    --color-divider: color-mix(in srgb, #0a0a0a 10%, transparent);
   }
 }
 
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --color-bg: #191715;
-  --color-surface: #221f1d;
-  --color-text: #ece7e2;
-  --color-accent: #16a9cf;
-  --color-accent-100: #123039;
-  --color-accent-600: #3fb4d6;
-  --color-accent-700: #74cfe9;
-  --color-accent-2-700: #f4709f;
-  --color-neutral-400: #423e3b;
-  --color-neutral-500: #6f6b68;
-  --color-neutral-600: #948f8b;
-  --color-neutral-700: #b7b1ac;
-  --color-neutral-800: #d3cdc8;
-  --color-divider: color-mix(in srgb, #ece7e2 16%, transparent);
+:root[data-theme='light'] {
+  color-scheme: light;
+  --color-bg: #ffffff;
+  --color-surface: #f6f6f7;
+  --color-text: #0a0a0a;
+  --color-accent: #5b63e6;
+  --color-accent-100: #eef0ff;
+  --color-accent-600: #4a52d8;
+  --color-accent-700: #4640c9;
+  --color-accent-2-700: #d1244b;
+  --color-neutral-400: #dcdcdc;
+  --color-neutral-500: #a3a3a3;
+  --color-neutral-600: #6f6f6f;
+  --color-neutral-700: #4a4a4a;
+  --color-neutral-800: #2b2b2b;
+  --color-divider: color-mix(in srgb, #0a0a0a 10%, transparent);
 }
 
 html,
@@ -73,9 +73,11 @@ body {
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: 'Source Serif 4', Georgia, serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-weight: 400;
+  letter-spacing: -0.006em;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   font-variant-numeric: tabular-nums;
 }
 
@@ -86,7 +88,7 @@ body {
 /* Translucent sticky-header fill — themed, and Tailwind's /opacity modifier
    doesn't play well with var() colors. */
 .bg-header {
-  background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  background-color: color-mix(in srgb, var(--color-bg) 72%, transparent);
 }
 
 :focus-visible {
@@ -94,20 +96,20 @@ body {
   outline-offset: 2px;
 }
 
-/* Broadsheet form primitives, used on the auth screen. */
+/* Form primitives. */
 .field > label {
   display: block;
   font-size: 12px;
-  margin-bottom: 5px;
-  color: color-mix(in srgb, var(--color-text) 70%, transparent);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--color-neutral-600);
+  letter-spacing: 0;
 }
 
 .input {
   width: 100%;
   min-height: 44px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   font: inherit;
   font-size: 16px;
   color: var(--color-text);
@@ -115,6 +117,7 @@ body {
   background: var(--color-surface);
   border: 1px solid var(--color-divider);
   border-radius: var(--radius-md);
+  transition: border-color 120ms ease;
 }
 
 /* Strip the native number spinners app-wide. */
@@ -130,12 +133,12 @@ input[type='number']::-webkit-inner-spin-button {
 }
 
 .input::placeholder {
-  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  color: var(--color-neutral-500);
   opacity: 1;
 }
 
 .input:hover {
-  border-color: color-mix(in srgb, var(--color-text) 45%, transparent);
+  border-color: var(--color-neutral-500);
 }
 
 .input:focus-visible {

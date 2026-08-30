@@ -6,7 +6,7 @@ const groupLetter = (n) => (n == null ? null : String.fromCharCode(65 + (n % 26)
 
 function Stepper({ onDown, onUp, children, minW }) {
   const btn =
-    'w-[44px] h-[44px] border border-neutral-400 rounded-[2px] flex items-center justify-center text-[22px] hover:border-accent hover:text-accent-700'
+    'w-[44px] h-[44px] border border-neutral-400 rounded flex items-center justify-center text-[22px] hover:border-accent hover:text-accent-700'
   return (
     <div className="flex items-center gap-[12px]">
       <button type="button" onClick={onDown} className={btn} aria-label="decrease">
@@ -36,13 +36,13 @@ export default function WorkScreen({ wk, prefs, library }) {
     <div className="flex flex-col gap-[24px]">
       {/* Top bar */}
       <div className="flex items-center justify-between gap-[15px]">
-        <div className="text-[15px] uppercase tracking-[0.14em] text-neutral-700 tabular-nums">
+        <div className="text-[15px] tracking-[0.02em] text-neutral-700 tabular-nums">
           {clock(wk.elapsed)} elapsed
         </div>
         <button
           type="button"
           onClick={wk.finish}
-          className="text-[15px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
+          className="text-[15px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
         >
           Finish
         </button>
@@ -51,19 +51,19 @@ export default function WorkScreen({ wk, prefs, library }) {
       {/* Lift header */}
       <div className="flex flex-col gap-[6px]">
         <div className="flex items-center justify-between gap-[12px]">
-          <div className="text-[13px] uppercase tracking-[0.14em] text-neutral-600">
+          <div className="text-[13px] tracking-[0.02em] text-neutral-600">
             Lift {wk.exIdx + 1} of {wk.plan.length}
             {letter ? <span className="text-accent-700"> · Superset {letter}</span> : null}
           </div>
           <button
             type="button"
             onClick={() => setSwapping(true)}
-            className="text-[13px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
+            className="text-[13px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
           >
             Swap
           </button>
         </div>
-        <h2 className="text-[38px] font-semibold leading-[1.05]">{cur.name}</h2>
+        <h2 className="text-[28px] font-semibold leading-[1.05]">{cur.name}</h2>
         <div className="text-[16px] text-neutral-700">
           {doneCount} of {rows.length} sets logged · target {cur.reps} reps
           {bw ? ' · bodyweight' : ''}
@@ -77,7 +77,7 @@ export default function WorkScreen({ wk, prefs, library }) {
 
       {/* Set table */}
       <div className="flex flex-col">
-        <div className="grid grid-cols-[34px_1fr_1fr_44px] gap-[10px] text-[12px] uppercase tracking-[0.14em] text-neutral-600 pb-[8px]">
+        <div className="grid grid-cols-[34px_1fr_1fr_44px] gap-[10px] text-[12px] tracking-[0.02em] text-neutral-600 pb-[8px]">
           <div>Set</div>
           <div>Weight</div>
           <div>Reps</div>
@@ -127,7 +127,7 @@ export default function WorkScreen({ wk, prefs, library }) {
                 <button
                   type="button"
                   onClick={() => wk.addDrop(i)}
-                  className="self-start text-[11px] uppercase tracking-[0.12em] text-neutral-600 min-h-[32px] flex items-center hover:text-accent-700 pl-[44px]"
+                  className="self-start text-[11px] tracking-[0.02em] text-neutral-600 min-h-[32px] flex items-center hover:text-accent-700 pl-[44px]"
                 >
                   ＋ Drop set
                 </button>
@@ -140,7 +140,7 @@ export default function WorkScreen({ wk, prefs, library }) {
       {/* Adjust next set */}
       {pendingIdx >= 0 ? (
         <div className="flex flex-col gap-[12px]">
-          <div className="text-[12px] uppercase tracking-[0.14em] text-neutral-600">
+          <div className="text-[12px] tracking-[0.02em] text-neutral-600">
             Adjust next set
           </div>
           <div className="flex gap-[30px]">
@@ -171,7 +171,7 @@ export default function WorkScreen({ wk, prefs, library }) {
           <button
             type="button"
             onClick={wk.skipRest}
-            className="text-[14px] uppercase tracking-[0.12em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
+            className="text-[14px] tracking-[0.02em] text-accent-700 min-h-[44px] flex items-center hover:text-accent-600"
           >
             Skip
           </button>
@@ -180,7 +180,7 @@ export default function WorkScreen({ wk, prefs, library }) {
 
       {/* Lift chips */}
       <div className="flex flex-col gap-[12px] pt-[20px] border-t border-divider">
-        <div className="text-[12px] uppercase tracking-[0.14em] text-neutral-600">
+        <div className="text-[12px] tracking-[0.02em] text-neutral-600">
           Today’s lifts
         </div>
         <div className="flex flex-wrap gap-[10px]">
@@ -195,8 +195,8 @@ export default function WorkScreen({ wk, prefs, library }) {
                 onClick={() => wk.selectLift(i)}
                 className={
                   active
-                    ? 'px-[14px] py-[10px] min-h-[44px] flex items-center rounded-[2px] bg-accent text-white text-[15px]'
-                    : 'px-[14px] py-[10px] min-h-[44px] flex items-center rounded-[2px] border border-neutral-400 text-neutral-800 text-[15px] hover:border-accent hover:text-accent-700'
+                    ? 'px-[14px] py-[10px] min-h-[44px] flex items-center rounded bg-accent text-white text-[15px]'
+                    : 'px-[14px] py-[10px] min-h-[44px] flex items-center rounded border border-neutral-400 text-neutral-800 text-[15px] hover:border-accent hover:text-accent-700'
                 }
               >
                 {gl ? `${gl}· ` : ''}

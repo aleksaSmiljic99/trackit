@@ -70,30 +70,39 @@ export async function ensureLibrary(userId) {
       .from('exercises')
       .insert(rows)
       .select('id, name, aliases, primary_muscle, equipment, load_mode, is_archived')
-    if (error) throw error
-    exercises = (inserted ?? []).map(rowToExercise)
 
-    // Turn the `alt` lists into symmetric substitution links.
-    const byName = new Map(exercises.map((ex) => [ex.name, ex.id]))
-    const pairs = new Set()
-    for (const seed of SEED_EXERCISES) {
-      const a = byName.get(seed.name)
-      for (const altName of seed.alt) {
-        const b = byName.get(altName)
-        if (!a || !b || a === b) continue
-        pairs.add(`${a}|${b}`)
-        pairs.add(`${b}|${a}`)
+    // 23505 = a concurrent first load (another tab/device, or a double-fired
+    // effect) already seeded. The insert is atomic, so nothing landed here —
+    // re-read their rows and fall through to the backfill.
+    if (error?.code === '23505') {
+      exercises = await listExercises(userId)
+    } else if (error) {
+      throw error
+    } else {
+      exercises = (inserted ?? []).map(rowToExercise)
+
+      // Turn the `alt` lists into symmetric substitution links.
+      const byName = new Map(exercises.map((ex) => [ex.name, ex.id]))
+      const pairs = new Set()
+      for (const seed of SEED_EXERCISES) {
+        const a = byName.get(seed.name)
+        for (const altName of seed.alt) {
+          const b = byName.get(altName)
+          if (!a || !b || a === b) continue
+          pairs.add(`${a}|${b}`)
+          pairs.add(`${b}|${a}`)
+        }
       }
-    }
-    if (pairs.size) {
-      const subRows = [...pairs].map((p) => {
-        const [exercise_id, substitute_id] = p.split('|')
-        return { user_id: userId, exercise_id, substitute_id }
-      })
-      const { error: subErr } = await supabase
-        .from('exercise_substitutions')
-        .upsert(subRows, { onConflict: 'exercise_id,substitute_id' })
-      if (subErr) throw subErr
+      if (pairs.size) {
+        const subRows = [...pairs].map((p) => {
+          const [exercise_id, substitute_id] = p.split('|')
+          return { user_id: userId, exercise_id, substitute_id }
+        })
+        const { error: subErr } = await supabase
+          .from('exercise_substitutions')
+          .upsert(subRows, { onConflict: 'exercise_id,substitute_id' })
+        if (subErr) throw subErr
+      }
     }
   }
 

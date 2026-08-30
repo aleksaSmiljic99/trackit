@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
 import {
   addSubstitution,
@@ -19,32 +19,47 @@ export function useExercises() {
   const [subs, setSubs] = useState(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const seeding = useRef(null)
 
   const load = useCallback(
     async (seed) => {
       if (!user) return
-      setLoading(true)
-      try {
-        const seededKey = `trackit.library.v1.${user.id}`
-        let list
-        if (seed && !localStorage.getItem(seededKey)) {
-          list = await ensureLibrary(user.id)
-          try {
-            localStorage.setItem(seededKey, '1')
-          } catch {
-            /* private mode — ensureLibrary is idempotent, so retry next load */
+
+      const run = async () => {
+        setLoading(true)
+        try {
+          const seededKey = `trackit.library.v1.${user.id}`
+          let list
+          if (seed && !localStorage.getItem(seededKey)) {
+            list = await ensureLibrary(user.id)
+            try {
+              localStorage.setItem(seededKey, '1')
+            } catch {
+              /* private mode — ensureLibrary is idempotent, so retry next load */
+            }
+          } else {
+            list = await listExercises(user.id)
           }
-        } else {
-          list = await listExercises(user.id)
+          setExercises(list)
+          setSubs(await listSubstitutions(user.id))
+          setError(null)
+        } catch (e) {
+          setError(e.message ?? String(e))
+        } finally {
+          setLoading(false)
         }
-        setExercises(list)
-        setSubs(await listSubstitutions(user.id))
-        setError(null)
-      } catch (e) {
-        setError(e.message ?? String(e))
-      } finally {
-        setLoading(false)
       }
+
+      // StrictMode double-invokes the mount effect; without this guard both
+      // runs race to seed the library and each inserts the full seed. Share
+      // the first seeding run's promise with any that land while it's open.
+      if (!seed) return run()
+      if (!seeding.current) {
+        seeding.current = run().finally(() => {
+          seeding.current = null
+        })
+      }
+      return seeding.current
     },
     [user],
   )

@@ -21,6 +21,60 @@ create table if not exists public.exercises (
 create index if not exists exercises_user_idx
   on public.exercises (user_id, is_archived, name);
 
+-- ── De-duplicate the seeded library (safe to re-run — a no-op once clean) ────
+-- Early loads could run the seed twice (effect double-fire under StrictMode,
+-- or two tabs / devices on a fresh account), leaving every exercise doubled.
+-- Collapse dupes into the oldest row, repoint everything that referenced a
+-- dup, then the unique index below stops it happening again.
+drop table if exists _exercise_dupes;
+create temporary table _exercise_dupes as
+select id as dup_id, keep_id
+from (
+  select id,
+         first_value(id) over (
+           partition by user_id,
+                        lower(regexp_replace(btrim(name), '\s+', ' ', 'g'))
+           order by created_at, id
+         ) as keep_id
+  from public.exercises
+) t
+where id <> keep_id;
+
+update public.routine_exercises re set exercise_id = d.keep_id
+  from _exercise_dupes d where re.exercise_id = d.dup_id;
+
+update public.session_sets ss set exercise_id = d.keep_id
+  from _exercise_dupes d where ss.exercise_id = d.dup_id;
+
+-- Substitution links: repoint each end where it won't collide with a pair the
+-- keeper already has; the rest cascade-delete with their dup exercise below.
+update public.exercise_substitutions s set exercise_id = d.keep_id
+  from _exercise_dupes d
+  where s.exercise_id = d.dup_id
+    and not exists (
+      select 1 from public.exercise_substitutions t
+      where t.exercise_id = d.keep_id and t.substitute_id = s.substitute_id
+    );
+
+update public.exercise_substitutions s set substitute_id = d.keep_id
+  from _exercise_dupes d
+  where s.substitute_id = d.dup_id
+    and not exists (
+      select 1 from public.exercise_substitutions t
+      where t.exercise_id = s.exercise_id and t.substitute_id = d.keep_id
+    );
+
+delete from public.exercise_substitutions where exercise_id = substitute_id;
+
+delete from public.exercises e using _exercise_dupes d where e.id = d.dup_id;
+
+drop table _exercise_dupes;
+
+-- One library row per name, per user (case- and whitespace-insensitive, to
+-- match exerciseKey() in the app).
+create unique index if not exists exercises_user_name_key
+  on public.exercises (user_id, lower(regexp_replace(btrim(name), '\s+', ' ', 'g')));
+
 -- ── exercise_substitutions (symmetric "swap this for that" links) ───────────
 -- Stored both directions so a lookup by either id is a single filter.
 create table if not exists public.exercise_substitutions (
